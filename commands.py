@@ -5,6 +5,8 @@ import io
 import re
 import logging
 
+import pprint
+
 import urbandictionary as ud
 
 import discord
@@ -13,7 +15,7 @@ from discord.ext import commands
 import helpers
 from helpers import embed_wrapper, Color
 
-from archive import archive
+from archive import archive, archive_server, parse_channel_role_overrides
 
 import settings
 
@@ -115,22 +117,47 @@ class Commands(commands.Cog):
         await ctx.trigger_typing()
         await ctx.send(embed=embed_wrapper(message='Written in Python 3.8 by Ambious.', color=Color.AQUA))
 
-    @commands.command(help='Archives a channel to a file then uploads to the archive channel.')
-    @commands.has_role('mods')
+    @commands.command(help='Archives a channel to a file then uploads to the where you request.')
+    @commands.has_role('Moderator')
     async def archive(self, ctx, channel_name):
         """ Archives an entire channel into a json and uploads it to the archive channel """
         if not ctx.message.channel_mentions:
             log.error('%s tried archiving a non-existing channel %s', ctx.message.author, channel_name)
-            await ctx.send('Error! Could not find channel "%s"!', channel_name)
-        else:
+            await ctx.send('```Error! Could not find channel "%s"!```' % channel_name)
+            return
+
+        if len(ctx.message.channel_mentions) >= 1:
             channel = ctx.message.channel_mentions[0]
 
-        if not settings.archive:
-            await ctx.send("No archive channel is set!")
+        if len(ctx.message.channel_mentions) >= 2:
+            where_to_upload = ctx.message.channel_mentions[1]
         else:
-            archive_channel = self.bot.get_channel(settings.archive)
-            await archive(channel, archive_channel)
-            await ctx.channel.send(f"```#{channel_name} archived and sent to #archive!```")
+            where_to_upload = ctx.channel
+
+        await archive(channel, where_to_upload)
+
+    @commands.command(help='Archives the entire server.')
+    @commands.has_role('Moderator')
+    async def archive_server(self, ctx):
+        """ Archives an entire server into a jsons and uploads it to a zip """
+        if ctx.message.channel_mentions:
+            where_to_upload = ctx.message.channel_mentions[0]
+        else:
+            where_to_upload = ctx.channel
+
+        await archive_server(where_to_upload)
+
+    @commands.command(help='Archives the entire server.')
+    @commands.has_role('Moderator')
+    async def channel_roles(self, ctx):
+        """ Archives an entire server into a jsons and uploads it to a zip """
+        if ctx.message.channel_mentions:
+            which_channel = ctx.message.channel_mentions[0]
+        else:
+            which_channel = ctx.channel
+
+        await ctx.channel.send(f"```\n{pprint.pformat(parse_channel_role_overrides, indent=4)}\n```")
+
 
 def setup(bot):
     """ Cog Init """

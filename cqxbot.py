@@ -52,7 +52,7 @@ def startup():
     """
     Startup function
     """
-    startup_extensions = ['handlers', 'commands', 'eggs', 'reddit', 'images']
+    startup_extensions = ['handlers', 'commands', 'eggs', 'images']
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)

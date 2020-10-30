@@ -12,16 +12,11 @@ import urbandictionary as ud
 import discord
 from discord.ext import commands
 
-import helpers
-from helpers import embed_wrapper, Color
-
+import _helpers as helpers
+from _helpers import embed_wrapper, Color
 from archive import archive, archive_server, parse_channel_role_overrides
 
-import settings
-
 log = logging.getLogger('Commands')
-
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Commands(commands.Cog):
     """ The Commands cog class """
@@ -44,14 +39,14 @@ class Commands(commands.Cog):
         """ Sends the log files to the user. TODO: Cycle logs? Send only recent? """
         await ctx.send('```Sending logs...```')
         await ctx.trigger_typing()
-        await ctx.message.author.send(file=discord.File(os.path.join(LOCAL_PATH, 'discord.log')))
+        await ctx.message.author.send(file=discord.File('discord.log'))
 
     @commands.command()
     @commands.is_owner()
     async def clear_logs(self, ctx):
         """ Clears the log files """
         try:
-            with open(os.path.join(LOCAL_PATH, 'discord.log'), 'w') as log_file:
+            with open('discord.log') as log_file:
                 log_file.write("\n=========\n")
             log.info("Log cleared!")
             await ctx.send('\N{OK HAND SIGN}')

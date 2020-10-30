@@ -2,18 +2,12 @@ import os
 import traceback
 import logging
 import time
-import configparser
+import tempfile
 from enum import Enum
 import requests
 import discord
 
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
-
 log = logging.getLogger('helpers')
-
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.ini")
-config = configparser.ConfigParser()
-config.read(CONFIG_PATH)
 
 ### Enum Classes ###
 class Color(Enum):
@@ -36,30 +30,6 @@ def embed_wrapper(message, color, title='CosmoquestX Bot'):
     em = discord.Embed(title=title, description=message, colour=color.value)
     return em
 
-def increase_counter(counter, amount):
-    config.read(CONFIG_PATH)
-    try:
-        current = int(config.get('counters', counter))
-
-    except configparser.NoSectionError:
-        config.add_section('counters')
-        current = 0
-
-    config.set('counters', counter, value=str(current + amount))
-    with open(CONFIG_PATH, 'w') as configWriter:
-        config.write(configWriter)
-
-def get_counter(counter):
-    config.read(CONFIG_PATH)
-    if config.has_section('counters') and config.has_option('counters', counter):
-        return int(config['counters'][counter])
-    else:
-        if not config.has_section('counters'):
-            config.add_section('counters')
-        config.set('counters', counter, '0')
-        with open(CONFIG_PATH, 'w') as configWriter:
-            config.write(configWriter)
-        return 0
 
 def check_timer(self, timer_name):
     if (timer_name not in self.timers) or self.timers[timer_name] == 0:
@@ -86,9 +56,11 @@ async def exception_handler(exception, ctx=None):
 
 async def save_file_and_send(ctx, path):
     r = requests.get(path, allow_redirects=True)
-    print(path)
-    open(LOCAL_PATH + '/temp.png', 'wb').write(r.content)
-    await ctx.send(file=discord.File(LOCAL_PATH + '/temp.png'))
-    os.remove(LOCAL_PATH + '/temp.png')
+    filename = os.path.basename(path)
+    local_path = os.path.join(tempfile.gettempdir(), filename)
+    with open(tempfile, 'wb') as f:
+        f.write(r.content)
+    await ctx.send(file=discord.File(local_path))
+    os.remove(local_path)
 
 log.info('Helpers loaded!')

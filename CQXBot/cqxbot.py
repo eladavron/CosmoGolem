@@ -2,53 +2,33 @@
 cqxbot's main module
 """
 
-import os, sys
-import argparse
+import os
+import sys
 import asyncio
+import argparse
 import logging
 import traceback
 import importlib
 from tendo import singleton
+
+from _settings import Settings
 from discord.ext import commands
 
-import helpers
+import _helpers as helpers
+from _helpers import Color
 
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
-SETTINGS = os.path.join(LOCAL_PATH, "settings.py")
-
-if not os.path.isfile(SETTINGS):
-    with open(SETTINGS, "w") as settings_file:
-        settings_file.write("""# API Keys
-bot_token = None  # REPLACE WITH BOT TOKEN
-imgur_id = None  # REPLACE WITH IMGUR_ID
-imgur_secret = None  # REPLACE WITH IMGUR_SECRET
-
-# Channels
-archive = None  # IF/WHEN there's an archive channel, put its ID here
-
-# Users
-Ambious = 194082034514132992  # Not really a secret
-""")
-    print("A settings file has been created!")
-    print("Please edit it, fill in the blanks, and run the bot again.")
-    sys.exit(0)
-
-import settings
-
-if not settings.bot_token:
-    print("A bot token has not been set (hint: in settings.py). Can not continue!")
-    sys.exit(1)
-
-### Global Variables ##
-bot = commands.Bot(command_prefix='.', description='CosmoQuestX Bot 1.0', owner_ids=[settings.Ambious], pm_help=True)
-
-### Logging ###
+# Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s][%(name)s] %(message)s')
-handler = logging.FileHandler(os.path.join(LOCAL_PATH, 'discord.log'), encoding='utf-8', mode='a')
-log = logging.getLogger('Main')
+handler = logging.FileHandler('discord.log', encoding='utf-8', mode='a')
+log = logging.getLogger()
 log.addHandler(handler)
 
-def startup():
+settings = Settings()
+
+### Global Variables ##
+bot = commands.Bot(command_prefix='.', description='CosmoQuestX Bot 1.0', owner_ids=settings["owners"], pm_help=True)
+
+def startup(debug):
     """
     Startup function
     """
@@ -59,10 +39,10 @@ def startup():
         except:
             log.error("Failed to load extension %s!\n%s", extension, traceback.format_exc())
 
-    if not args.debug:
+    if not debug:
         bot.loop.create_task(looper())
 
-    bot.run(settings.bot_token) # This halts until the bot shuts down
+    bot.run(settings.get("bot_token")) # This halts until the bot shuts down
 
     # Here the bot is shutting down
     bot.loop.close()
@@ -144,4 +124,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     singleton.SingleInstance()
-    startup()
+    startup(args.debug)

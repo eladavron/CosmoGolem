@@ -7,11 +7,9 @@ import os
 import logging
 import discord
 from discord.ext import commands
-
-import helpers
+import _helpers as helpers
 
 log = logging.getLogger('EasterEggs')
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Eggs(commands.Cog):
     """ The Easter Eggs module class """

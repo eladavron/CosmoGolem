@@ -6,10 +6,7 @@ import logging
 
 from discord.ext import commands
 
-import helpers
-
 log = logging.getLogger('discord')
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Handlers(commands.Cog):
     """ The handlers cog class """
@@ -20,11 +17,7 @@ class Handlers(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         """ What happens when the bot is ready """
-        try:
-            log.info('*** Client ready! ***')
-
-        except Exception as ex:
-            helpers.exception_handler(ex)
+        log.info('*** Client ready! ***')
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

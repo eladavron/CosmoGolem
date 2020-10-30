@@ -9,12 +9,12 @@ from imgurpython import ImgurClient
 import discord
 from discord.ext import commands
 
-import settings
-import helpers
-from helpers import Color
+from _settings import Settings
+import _helpers as helpers
+from _helpers import Color
+from cqxbot import settings
 
 log = logging.getLogger('Images')
-LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class Images(commands.Cog):
     def __init__(self, bot):
@@ -30,7 +30,12 @@ class Images(commands.Cog):
     async def avatar(self, ctx, query):
         for member in ctx.message.mentions:
             url = member.avatar_url
-            em = discord.Embed(title='Here\'s %s%s avatar:' % (member.display_name, '\'' if member.display_name.endswith('s') else '\'s'), url=url, colour=Color.cqxbot.value)
+            em = discord.Embed(
+                title='Here\'s %s%s avatar:'
+                % (member.display_name, '\'' if member.display_name.endswith('s') else '\'s'),
+                url=url,
+                colour=Color.cqxbot.value
+            )
             em.set_image(url=url)
             await ctx.send(embed=em)
 
@@ -39,23 +44,18 @@ class Images(commands.Cog):
         await ctx.trigger_typing()
         if em := await imgur_fetcher('cat', ctx):
             em.description = 'Here\'s a catto:'
-            em.set_footer(text='%d cattos served!' % (helpers.get_counter('catto') + 1))
+            em.set_footer(text='%d cattos served!' % (settings.get_counter('catto') + 1))
             await ctx.send(embed=em)
-            helpers.increase_counter('catto', 1)
-
-    @commands.command(help='Make John say that last thing that was said')
-    async def garfield(self, ctx):
-        await ctx.message.delete()
-        await ctx.send(file=discord.File(LOCAL_PATH + '/images/garfield.png'))
+            settings.increase_counter('catto', 1)
 
     @commands.command(help='Show a random doggo.')
     async def woof(self, ctx):
         await ctx.trigger_typing()
         if em := await imgur_fetcher('dog', ctx):
             em.description = 'Here\'s a doggo:'
-            em.set_footer(text='%d doggos served!' % (helpers.get_counter('doggo') + 1))
+            em.set_footer(text='%d doggos served!' % (settings.get_counter('doggo') + 1))
             await ctx.send(embed=em)
-            helpers.increase_counter('doggo', 1)
+            settings.increase_counter('doggo', 1)
 
     @commands.command(help='Make an emoji bigger.')
     async def embiggen(self, ctx, query):
@@ -73,16 +73,18 @@ class Images(commands.Cog):
 
 
 async def imgur_fetcher(query, ctx):
-    if not settings.imgur_id:
-        await ctx.channel.send("```Imgur API Key not set up, can't show images!```")
+    imgur_settings = settings.get("imgur")
+    if not all(x in imgur_settings for x in ["id", "secret"]):
+        await ctx.channel.send("```Imgur API Key not set up correctly, can't show images!```")
         log.error("Imgur API Key not set up, can't show images!")
         return None
 
-    img_client = ImgurClient(settings.imgur_id, settings.imgur_secret)
+    img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
     resultList = img_client.gallery_search(query)
     if len(resultList) <= 0:
-        return discord.Embed(description='Sorry, no results found for "%s"' % (query),
-                             colour=Color.cqxbot.value)
+        return discord.Embed(
+            description='Sorry, no results found for "%s"' % (query), colour=helpers.Color.cqxbot.value
+        )
 
     selectedImage = random.choice(resultList)
     if selectedImage.is_album:
@@ -97,7 +99,7 @@ async def imgur_fetcher(query, ctx):
     url = selectedImage.gifv if selectedImage.animated else selectedImage.link
     message = ('Here\'s a random image of "%s":\n%s' %
                (query, '***Warning: NSFW image!***\n<%s>' % (url) if isNSFW else ''))
-    color = Color.RED.value if isNSFW else Color.cqxbot.value
+    color = helpers.Color.RED.value if isNSFW else Color.cqxbot.value
     em = discord.Embed(description=message, url=selectedImage.link, colour=color)
     if not isNSFW:
         em.set_image(url=selectedImage.link)

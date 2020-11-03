@@ -13,6 +13,7 @@ class Settings(dict):
         if not os.path.isfile("settings.json"):
             self.update({
                 "bot_token": None,
+                "server_id": None,
                 "imgur": {
                     "id": None,
                     "secret": None,

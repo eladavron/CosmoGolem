@@ -142,17 +142,6 @@ class Commands(commands.Cog):
 
         await archive_server(where_to_upload)
 
-    @commands.command(help='Archives the entire server.')
-    @commands.has_role('Moderator')
-    async def channel_roles(self, ctx):
-        """ Archives an entire server into a jsons and uploads it to a zip """
-        if ctx.message.channel_mentions:
-            which_channel = ctx.message.channel_mentions[0]
-        else:
-            which_channel = ctx.channel
-
-        await ctx.channel.send(f"```\n{pprint.pformat(parse_channel_role_overrides, indent=4)}\n```")
-
 
 def setup(bot):
     """ Cog Init """

@@ -71,7 +71,6 @@ class Images(commands.Cog):
         else:
             await ctx.send(f'```"{query}" is not a recognized emoji.```')
 
-
 async def imgur_fetcher(query, ctx):
     imgur_settings = settings.get("imgur")
     if not all(x in imgur_settings for x in ["id", "secret"]):

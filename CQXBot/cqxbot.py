@@ -13,6 +13,7 @@ from tendo import singleton
 
 from _settings import Settings
 from discord.ext import commands
+from discord import Intents, utils
 
 import _helpers as helpers
 from _helpers import Color
@@ -26,13 +27,18 @@ log.addHandler(handler)
 settings = Settings()
 
 ### Global Variables ##
-bot = commands.Bot(command_prefix='.', description='CosmoQuestX Bot 1.0', owner_ids=settings["owners"], pm_help=True)
+bot = commands.Bot(
+    command_prefix='.',
+    description='CosmoQuestX Bot 1.0',
+    owner_ids=settings["owners"],
+    pm_help=True
+    )
 
 def startup(debug):
     """
     Startup function
     """
-    startup_extensions = ['handlers', 'commands', 'eggs', 'images']
+    startup_extensions = ['handlers', 'commands', 'eggs', 'images', 'emoji_roles']
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)
@@ -104,6 +110,26 @@ async def reload(ctx, module):
     else:
         log.info("Module %s reloaded!", module)
         await ctx.send('\N{OK HAND SIGN}')
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    # Check if this channel has any bindings
+    channel_reactions = settings.get("emoji_roles", {}).get(str(payload.channel_id), {})
+    if str(payload.emoji) in channel_reactions:  # If it does, check if this reaction is one of them
+        role_name = channel_reactions.get(payload.emoji.name)
+        log.info(
+            "User %s has reacted with %s in %s and will be granted the role %s",
+            payload.member,
+            str(payload.emoji),
+            payload.channel_id,
+            role_name
+        )
+        guild = bot.get_guild(settings["server_id"])
+        role = utils.get(guild.roles, name=role_name)
+        await payload.member.add_roles(role)
+        await guild.get_channel(payload.channel_id).send(f"```{payload.member.name} has been granted the role {role_name}```")
+
 
 async def looper():
     """

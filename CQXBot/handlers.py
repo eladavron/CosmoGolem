@@ -29,7 +29,7 @@ class Handlers(commands.Cog):
             await ctx.send('```%s\nType .help to see a list of available commands.```' % str(error))
 
         elif isinstance(error, commands.MissingRequiredArgument) or isinstance(error, commands.BadArgument): # For when using wrong arguments
-            await ctx.send('```That\'s not how you %s!\nType .help %s to get help.```' % (ctx.invoked_with, ctx.invoked_with))
+            await ctx.send('```That\'s not how you %s!\n%s\nType .help %s to get help.```' % (ctx.invoked_with, str(error), ctx.invoked_with))
 
         else: # Technically shouldn't get here.
             await ctx.send('```%s```' % str(error))

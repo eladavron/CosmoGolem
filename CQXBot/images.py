@@ -9,12 +9,13 @@ from imgurpython import ImgurClient
 import discord
 from discord.ext import commands
 
-from _settings import Settings
 import _helpers as helpers
 from _helpers import Color
-from cqxbot import settings
+from _settings import Settings
 
 log = logging.getLogger('Images')
+
+settings = Settings()
 
 class Images(commands.Cog):
     def __init__(self, bot):

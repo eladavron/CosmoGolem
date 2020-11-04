@@ -27,12 +27,16 @@ log.addHandler(handler)
 settings = Settings()
 
 ### Global Variables ##
-bot = commands.Bot(
-    command_prefix='.',
-    description='CosmoQuestX Bot 1.0',
-    owner_ids=settings["owners"],
-    pm_help=True
-    )
+class Bot(commands.Bot):
+    def __init__(self, settings: Settings, **kwargs):
+        self.settings = settings
+        super().__init__(**kwargs)
+
+    @property
+    def guild(self):
+        return self.get_guild(settings["server_id"])
+
+bot = Bot(settings, command_prefix='.', description='CosmoQuestX Bot 1.0', owner_ids=settings["owners"], pm_help=True)
 
 def startup(debug):
     """
@@ -115,20 +119,21 @@ async def reload(ctx, module):
 @bot.event
 async def on_raw_reaction_add(payload):
     # Check if this channel has any bindings
-    channel_reactions = settings.get("emoji_roles", {}).get(str(payload.channel_id), {})
-    if str(payload.emoji) in channel_reactions:  # If it does, check if this reaction is one of them
-        role_name = channel_reactions.get(payload.emoji.name)
+    message_reactions = settings.get("emoji_roles", {}).get(str(payload.message_id), {})
+    if str(payload.emoji) in message_reactions:  # If it does, check if this reaction is one of them
+        role_name = message_reactions.get(str(payload.emoji))
         log.info(
             "User %s has reacted with %s in %s and will be granted the role %s",
             payload.member,
             str(payload.emoji),
-            payload.channel_id,
+            payload.message_id,
             role_name
         )
-        guild = bot.get_guild(settings["server_id"])
-        role = utils.get(guild.roles, name=role_name)
+        role = utils.get(bot.guild.roles, name=role_name)
         await payload.member.add_roles(role)
-        await guild.get_channel(payload.channel_id).send(f"```{payload.member.name} has been granted the role {role_name}```")
+        await bot.guild.get_channel(payload.channel_id).send(
+            f"```{payload.member.name} has been granted the role {role_name}```"
+        )
 
 
 async def looper():

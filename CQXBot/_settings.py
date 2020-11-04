@@ -14,6 +14,7 @@ class Settings(dict):
             self.update({
                 "bot_token": None,
                 "server_id": None,
+                "mod_role_id": None,
                 "imgur": {
                     "id": None,
                     "secret": None,
@@ -32,7 +33,14 @@ class Settings(dict):
             sys.exit(0)
 
         with open("settings.json", "r") as settings_file:
-            self.update(json.loads(settings_file.read()))
+            loaded_settings = json.loads(settings_file.read())
+            required_settings = ["bot_token", "server_id", "mod_role_id", "owners"]
+            if not all(bool(loaded_settings.get(x)) for x in required_settings):
+                raise SettingMissing(
+                    "A required setting is missing from your settings file! The required fields are: "
+                    + ", ".join(required_settings)
+                )
+            self.update(loaded_settings)
 
     def increase_counter(self, counter, amount):
         if "counters" not in self:
@@ -58,3 +66,6 @@ class Settings(dict):
     def save(self):
         with open("settings.json", "w") as settings_file:
             settings_file.write(json.dumps(self, indent=4))
+
+class SettingMissing(Exception):
+    """ An exception raised when a required key is missing from the settings file """

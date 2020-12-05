@@ -42,7 +42,7 @@ def startup(debug):
     """
     Startup function
     """
-    startup_extensions = ['handlers', 'commands', 'eggs', 'images', 'emoji_roles']
+    startup_extensions = ["handlers", "commands", "eggs", "images", "emoji_roles", "bedtime"]
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)

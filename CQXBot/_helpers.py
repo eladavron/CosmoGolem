@@ -31,12 +31,24 @@ def embed_wrapper(message, color, title='CosmoquestX Bot'):
     return em
 
 
-def check_timer(self, timer_name):
+def check_timer(self, timer_name, runtime: int = 60 * 5):
+    """
+    Acts like a lock check.
+    If the give timer name is not running (or finished)  returns True and starts the timer from 0.
+    Otherwise returns False.
+
+    Args:
+        timer_name (str): The name of the timer to check.
+        timeout (int): The number of seconds to run the timer for.
+
+    Returns:
+        bool: True if the timer is
+    """
     if (timer_name not in self.timers) or self.timers[timer_name] == 0:
         self.timers[timer_name] = time.time()
         return True
     else:
-        if (time.time() - self.timers[timer_name]) < (60 * 5):
+        if (time.time() - self.timers[timer_name]) < runtime:
             return False
         else:
             self.timers[timer_name] = time.time()

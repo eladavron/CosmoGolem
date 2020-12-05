@@ -19,11 +19,7 @@ class Settings(dict):
                     "id": None,
                     "secret": None,
                 },
-                "owners": [
-                ],
-                "users": {
-                },
-                "channels": {
+                    "bedtime": {},
                 }
             })
             self.save()

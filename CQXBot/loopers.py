@@ -3,7 +3,8 @@ Periodic tasks
 """
 import logging
 
-log = logging.getLogger('loopers')
+log = logging.getLogger("loopers")
+
 
 async def loopers(bot):
     """

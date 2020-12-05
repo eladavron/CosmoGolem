@@ -8,17 +8,18 @@ from discord import NotFound
 from discord.ext import commands
 from _settings import Settings
 
-log = logging.getLogger('EmojiRoles')
+log = logging.getLogger("EmojiRoles")
 
 settings = Settings()
 
+
 class EmojiRoles(commands.Cog):
     """ The handlers cog class """
+
     def __init__(self, bot):
         self.bot = bot
 
-
-    @commands.command(help='Bind an emoji to a role in a specific channel.')
+    @commands.command(help="Bind an emoji to a role in a specific channel.")
     @commands.has_role(settings["mod_role_id"])
     async def bind_emoji(self, ctx, *args):
         """
@@ -36,17 +37,21 @@ class EmojiRoles(commands.Cog):
         for arg in args:
             if emoji_id := self.resolve_emoji_id(arg):
                 if not (emoji_id in server_emojis or arg in emoji.UNICODE_EMOJI):
-                    log.error("%s tried binding a custom emoji from another server!", ctx.message.author)
-                    await ctx.send(
-                        '```Error, emoji %s is neither in UNICODE nor in the current server!```'
-                        % arg
+                    log.error(
+                        "%s tried binding a custom emoji from another server!",
+                        ctx.message.author,
                     )
+                    await ctx.send("```Error, emoji %s is neither in UNICODE nor in the current server!```" % arg)
                     return
                 emoji_string = arg
             elif arg in server_roles:
                 role = arg
             elif not (message := await self.resolve_message(arg)):
-                log.error("%s tried binding an emoji with an unrecognized argument: %s", ctx.message.author, arg)
+                log.error(
+                    "%s tried binding an emoji with an unrecognized argument: %s",
+                    ctx.message.author,
+                    arg,
+                )
                 await ctx.send(
                     '```Error, couldn\'t recognize type of argument "%s"! It is not a channel, a role, or an emoji!```'
                     % arg
@@ -62,7 +67,10 @@ class EmojiRoles(commands.Cog):
             await ctx.send("You must supply a role to bind an emoji to a role... If you did, it was not recognized.")
             return
         if not message:
-            log.error("%s tried binding an emoji without a message to bind it to!.", ctx.message.author)
+            log.error(
+                "%s tried binding an emoji without a message to bind it to!.",
+                ctx.message.author,
+            )
             await ctx.send("You must supply a messag eID to bind an emoji to it... If you did, it was not recognized.")
             return
 
@@ -72,9 +80,8 @@ class EmojiRoles(commands.Cog):
         if message.id not in settings["emoji_roles"]:
             settings["emoji_roles"][message.id] = {}
         settings["emoji_roles"][message.id][emoji_string] = role
-        await ctx.send('Reacting %s on %s will now grant the role %s' % (emoji_string, message.id, role))
+        await ctx.send("Reacting %s on %s will now grant the role %s" % (emoji_string, message.id, role))
         settings.save()
-
 
     def resolve_emoji_id(self, query):
         """
@@ -86,15 +93,14 @@ class EmojiRoles(commands.Cog):
         Returns:
             int|str: Emoji ID (int) if custom, or ASCII code.
         """
-        custom_emoji_pattern = r'^\<a?\:(\S+)\:(\d+)\>$'
+        custom_emoji_pattern = r"^\<a?\:(\S+)\:(\d+)\>$"
         if query in emoji.UNICODE_EMOJI:
-            string = query.encode('unicode-escape').decode('utf-8').replace('\\', '')
-            return re.match(r'U0+(\S+)', string).group(1)
+            string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
+            return re.match(r"U0+(\S+)", string).group(1)
         elif match := re.match(custom_emoji_pattern, query):
             return int(match.group(2))
         else:
             return None
-
 
     async def resolve_message(self, message_id):
         """
@@ -112,6 +118,7 @@ class EmojiRoles(commands.Cog):
             except NotFound:
                 continue
         return None
+
 
 def setup(bot):
     """ Cog Init """

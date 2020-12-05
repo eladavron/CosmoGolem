@@ -19,8 +19,8 @@ import _helpers as helpers
 from _helpers import Color
 
 # Logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s][%(name)s] %(message)s')
-handler = logging.FileHandler('discord.log', encoding='utf-8', mode='a')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s][%(name)s] %(message)s")
+handler = logging.FileHandler("discord.log", encoding="utf-8", mode="a")
 log = logging.getLogger()
 log.addHandler(handler)
 
@@ -36,7 +36,15 @@ class Bot(commands.Bot):
     def guild(self):
         return self.get_guild(settings["server_id"])
 
-bot = Bot(settings, command_prefix='.', description='CosmoQuestX Bot 1.0', owner_ids=settings["owners"], pm_help=True)
+
+bot = Bot(
+    settings,
+    command_prefix=".",
+    description="CosmoQuestX Bot 1.0",
+    owner_ids=settings["owners"],
+    pm_help=True,
+)
+
 
 def startup(debug):
     """
@@ -52,11 +60,11 @@ def startup(debug):
     if not debug:
         bot.loop.create_task(looper())
 
-    bot.run(settings.get("bot_token")) # This halts until the bot shuts down
+    bot.run(settings.get("bot_token"))  # This halts until the bot shuts down
 
     # Here the bot is shutting down
     bot.loop.close()
-    log.info('Done. Goodbye!')
+    log.info("Done. Goodbye!")
 
 
 ### General Commands ###
@@ -72,10 +80,11 @@ async def load(ctx, module):
         bot.load_extension(module)
     except:
         log.error("Failed to load extension %s\n%s", module, traceback.format_exc())
-        await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+        await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s loaded!", module)
-        await ctx.send('\N{OK HAND SIGN}')
+        await ctx.send("\N{OK HAND SIGN}")
+
 
 @bot.command(hidden=True)
 @commands.is_owner()
@@ -89,10 +98,11 @@ async def unload(ctx, module):
         bot.unload_extension(module)
     except:
         log.error("Failed to unload extension %s\n%s", module, traceback.format_exc())
-        await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+        await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s unloaded!", module)
-        await ctx.send('\N{OK HAND SIGN}')
+        await ctx.send("\N{OK HAND SIGN}")
+
 
 @bot.command(hidden=True)
 @commands.is_owner()
@@ -103,17 +113,17 @@ async def reload(ctx, module):
         module (str): Name of module to reload.
     """
     try:
-        if module == 'helpers':
+        if module == "helpers":
             importlib.reload(helpers)
         else:
             bot.unload_extension(module)
             bot.load_extension(module)
     except:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
-        await ctx.send(f'```py\n{traceback.format_exc()}\n```')
+        await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s reloaded!", module)
-        await ctx.send('\N{OK HAND SIGN}')
+        await ctx.send("\N{OK HAND SIGN}")
 
 
 @bot.event
@@ -127,7 +137,7 @@ async def on_raw_reaction_add(payload):
             payload.member,
             str(payload.emoji),
             payload.message_id,
-            role_name
+            role_name,
         )
         role = utils.get(bot.guild.roles, name=role_name)
         await payload.member.add_roles(role)
@@ -144,14 +154,16 @@ async def looper():
         await bot.wait_until_ready()
 
         import loopers
+
         await loopers.loopers(bot)
         del loopers
 
-        await asyncio.sleep(300) # Wait 5 minutes
+        await asyncio.sleep(300)  # Wait 5 minutes
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
 
     singleton.SingleInstance()

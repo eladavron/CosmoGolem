@@ -7,21 +7,26 @@ import logging
 
 log = logging.getLogger("Settings")
 
+
 class Settings(dict):
     def __init__(self):
         dict.__init__(self)
         if not os.path.isfile("settings.json"):
-            self.update({
-                "bot_token": None,
-                "server_id": None,
-                "mod_role_id": None,
-                "imgur": {
-                    "id": None,
-                    "secret": None,
-                },
+            self.update(
+                {
+                    "bot_token": None,
+                    "server_id": None,
+                    "mod_role_id": None,
+                    "imgur": {
+                        "id": None,
+                        "secret": None,
+                    },
+                    "owners": [],
+                    "users": {},
+                    "channels": {},
                     "bedtime": {},
                 }
-            })
+            )
             self.save()
             log.info("As this is the first run, a settings file has been created!")
             log.info("Please fill up the bot_token, imgur API keys, and add at least a single owner ID to the list,")
@@ -62,6 +67,7 @@ class Settings(dict):
     def save(self):
         with open("settings.json", "w") as settings_file:
             settings_file.write(json.dumps(self, indent=4))
+
 
 class SettingMissing(Exception):
     """ An exception raised when a required key is missing from the settings file """

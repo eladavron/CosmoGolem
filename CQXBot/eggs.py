@@ -7,7 +7,7 @@ import os
 import logging
 import discord
 from discord.ext import commands
-import _helpers as helpers
+from _helpers import embedder, check_timer, get_channel_name
 
 log = logging.getLogger("EasterEggs")
 
@@ -23,18 +23,18 @@ class Eggs(commands.Cog):
     async def on_message(self, message):
         """ All easter eggs are listened to by a single "on_message" - splitting it up would mean multiple files and who has the patience for that """
         if re.search(r"b+\W*e+\W*n+\W*n+\W*u+", message.content, re.IGNORECASE):  # Bennu
-            if helpers.check_timer(self, "bennu_" + str(message.channel.id)):
+            if check_timer(self, "bennu_" + str(message.channel.id)):
                 log.info(
                     "%s mentioned Bennu in %s",
                     message.author.name,
-                    helpers.get_channel_name(message.channel),
+                    get_channel_name(message.channel),
                 )
-                await message.channel.send("```F Bennu!```")
+                await message.channel.send(embed=embedder(description="F Bennu!"))
             else:
                 log.info(
                     "%s mentioned Bennu in %s but the easter egg was on timeout.",
                     message.author.name,
-                    helpers.get_channel_name(message.channel),
+                    get_channel_name(message.channel),
                 )
 
 

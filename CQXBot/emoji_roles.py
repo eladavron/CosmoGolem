@@ -4,9 +4,10 @@ import logging
 import discord
 import re
 import emoji
-from discord import NotFound
+from discord import NotFound, Embed
 from discord.ext import commands
 from _settings import Settings
+from _helpers import Color, embedder
 
 log = logging.getLogger("EmojiRoles")
 
@@ -41,7 +42,9 @@ class EmojiRoles(commands.Cog):
                         "%s tried binding a custom emoji from another server!",
                         ctx.message.author,
                     )
-                    await ctx.send("```Error, emoji %s is neither in UNICODE nor in the current server!```" % arg)
+                    await ctx.send(
+                        embed=embedder(f"emoji {arg} is neither in UNICODE nor in the current server!", error=True)
+                    )
                     return
                 emoji_string = arg
             elif arg in server_roles:
@@ -53,8 +56,10 @@ class EmojiRoles(commands.Cog):
                     arg,
                 )
                 await ctx.send(
-                    '```Error, couldn\'t recognize type of argument "%s"! It is not a channel, a role, or an emoji!```'
-                    % arg
+                    embed=embedder(
+                        f"Couldn't recognize type of argument '{arg}'! It is not a channel, a role, or an emoji!",
+                        error=True,
+                    )
                 )
                 return
 

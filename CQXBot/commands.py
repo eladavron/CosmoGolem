@@ -12,8 +12,7 @@ import urbandictionary as ud
 import discord
 from discord.ext import commands
 
-import _helpers as helpers
-from _helpers import embed_wrapper, Color
+from _helpers import Color, LOG_PATH, embedder, exception_handler
 from archive import archive, archive_server, parse_channel_role_overrides
 
 log = logging.getLogger("Commands")
@@ -26,34 +25,34 @@ class Commands(commands.Cog):
         self.bot = bot
 
     ### Ownder Commands ###
-    @commands.command()
+    @commands.command(aliases=["quit"])
     @commands.is_owner()
     async def exit(self, ctx):
         """ Quits the bot """
         log.info("Quitting!")
         await ctx.trigger_typing()
-        await ctx.send(embed=embed_wrapper("Quitting, goodbye!", Color.RED))
+        await ctx.send(embed=embedder(description="Quitting, goodbye!"))
         await self.bot.logout()
 
     @commands.command()
     @commands.is_owner()
     async def logs(self, ctx):
         """ Sends the log files to the user. TODO: Cycle logs? Send only recent? """
-        await ctx.send("```Sending logs...```")
+        await ctx.send(embed=embedder("Sending logs..."))
         await ctx.trigger_typing()
-        await ctx.message.author.send(file=discord.File("discord.log"))
+        await ctx.message.author.send(file=discord.File(LOG_PATH))
 
     @commands.command()
     @commands.is_owner()
     async def clear_logs(self, ctx):
         """ Clears the log files """
         try:
-            with open("discord.log") as log_file:
+            with open(LOG_PATH) as log_file:
                 log_file.write("\n=========\n")
             log.info("Log cleared!")
             await ctx.send("\N{OK HAND SIGN}")
         except Exception as ex:
-            helpers.exception_handler(ex, ctx)
+            exception_handler(ex, ctx)
         else:
             await ctx.send("\N{OK HAND SIGN}")
 
@@ -70,7 +69,8 @@ class Commands(commands.Cog):
         defList = ud.define(query)
         log.info("Found %d items!", len(defList))
         if defList:
-            await ctx.send(embed=embed_wrapper("No UrbanDictionary definition found for `%s`" % query, Color.RED))
+            await ctx.send(embed=embedder(description=f"No UrbanDictionary definition found for '{query}'", error=True))
+
         else:
             await ctx.send(
                 "Found `%d` UrbanDictionary definition%s for `%s`:"
@@ -81,9 +81,8 @@ class Commands(commands.Cog):
                 shown += 1
                 if shown > max_lines:
                     break
-                em = embed_wrapper(
-                    "%s\n\n**Usage Example:**\n*%s*" % (defin.definition, defin.example),
-                    color=Color.cqxbot,
+                em = embedder(
+                    description=f"{defin.definition}\n\n**Usage Example:**\n*{defin.example}*",
                     title=defin.word,
                 )
                 em.url = 'https://www.urbandictionary.com/define.php?term="%s"' % query.replace(" ", "+")
@@ -125,19 +124,15 @@ class Commands(commands.Cog):
     async def info(self, ctx):
         """ Handles the "info" command """
         await ctx.trigger_typing()
-        await ctx.send(embed=embed_wrapper(message="Written in Python 3.8 by Ambious.", color=Color.AQUA))
+        await ctx.send(embed=embedder("Written in Python 3.9 by Ambious", title="CosmoQuestX Bot", color=Color.AQUA))
 
     @commands.command(help="Archives a channel to a file then uploads to the where you request.")
     @commands.has_role("Moderator")
     async def archive(self, ctx, channel_name):
         """ Archives an entire channel into a json and uploads it to the archive channel """
         if not ctx.message.channel_mentions:
-            log.error(
-                "%s tried archiving a non-existing channel %s",
-                ctx.message.author,
-                channel_name,
-            )
-            await ctx.send('```Error! Could not find channel "%s"!```' % channel_name)
+            log.error("%s tried archiving a non-existing channel %s", ctx.message.author, channel_name)
+            await ctx.send(embed=embedder(f'Could not find channel "{channel_name}"', error=True))
             return
 
         if len(ctx.message.channel_mentions) >= 1:

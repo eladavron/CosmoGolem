@@ -9,8 +9,7 @@ from imgurpython import ImgurClient
 import discord
 from discord.ext import commands
 
-import _helpers as helpers
-from _helpers import Color
+from _helpers import Color, embedder, save_file_and_send
 from _settings import Settings
 
 log = logging.getLogger("Images")
@@ -31,15 +30,15 @@ class Images(commands.Cog):
     @commands.command(help="Show a user's avatar in full.")
     async def avatar(self, ctx, query):
         for member in ctx.message.mentions:
-            url = member.avatar_url
-            em = discord.Embed(
+            url = str(member.avatar_url)
+            em = embedder(
+                description="",
                 title="Here's %s%s avatar:"
                 % (
                     member.display_name,
                     "'" if member.display_name.endswith("s") else "'s",
                 ),
                 url=url,
-                colour=Color.cqxbot.value,
             )
             em.set_image(url=url)
             await ctx.send(embed=em)
@@ -69,28 +68,25 @@ class Images(commands.Cog):
             string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
             code = re.match(r"U0+(\S+)", string).group(1)
             path = f"https://github.com/twitter/twemoji/blob/gh-pages/36x36/{code}png?raw=true"
-            await helpers.save_file_and_send(ctx, path)
+            await save_file_and_send(ctx, path)
         elif re.match(r"^\<\:(\S+)\:(\d+)\>$", query):
             emoji_id = re.match(r"^\<\:(\S+)\:(\d+)\>$", query).group(2)
-            await helpers.save_file_and_send(ctx, f"https://cdn.discordapp.com/emojis/{emoji_id}.png")
+            await save_file_and_send(ctx, f"https://cdn.discordapp.com/emojis/{emoji_id}.png")
         else:
-            await ctx.send(f'```"{query}" is not a recognized emoji.```')
+            await ctx.send(embed=embedder(f'"{query}" is not a recognized emoji.', error=True))
 
 
 async def imgur_fetcher(query, ctx):
     imgur_settings = settings.get("imgur")
     if not all(x in imgur_settings for x in ["id", "secret"]):
-        await ctx.channel.send("```Imgur API Key not set up correctly, can't show images!```")
+        await ctx.channel.send(embed=embedder("Imgur API Key not set up correctly, can't show images!", error=True))
         log.error("Imgur API Key not set up, can't show images!")
         return None
 
     img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
     resultList = img_client.gallery_search(query)
     if len(resultList) <= 0:
-        return discord.Embed(
-            description='Sorry, no results found for "%s"' % (query),
-            colour=helpers.Color.cqxbot.value,
-        )
+        return embedder(f'Sorry, no results found for "{query}"')
 
     selectedImage = random.choice(resultList)
     if selectedImage.is_album:
@@ -107,8 +103,8 @@ async def imgur_fetcher(query, ctx):
         query,
         "***Warning: NSFW image!***\n<%s>" % (url) if isNSFW else "",
     )
-    color = helpers.Color.RED.value if isNSFW else Color.cqxbot.value
-    em = discord.Embed(description=message, url=selectedImage.link, colour=color)
+    color = Color.RED if isNSFW else Color.DEFAULT
+    em = embedder(description=message, url=selectedImage.link, color=color)
     if not isNSFW:
         em.set_image(url=selectedImage.link)
     log.info(

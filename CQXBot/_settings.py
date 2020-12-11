@@ -6,12 +6,13 @@ import json
 import logging
 
 log = logging.getLogger("Settings")
+from _helpers import SETTINGS_PATH
 
 
 class Settings(dict):
     def __init__(self):
         dict.__init__(self)
-        if not os.path.isfile("settings.json"):
+        if not os.path.isfile(SETTINGS_PATH):
             self.update(
                 {
                     "bot_token": None,
@@ -33,7 +34,7 @@ class Settings(dict):
             log.info("then run the bot again.")
             sys.exit(0)
 
-        with open("settings.json", "r") as settings_file:
+        with open(SETTINGS_PATH, "r") as settings_file:
             loaded_settings = json.loads(settings_file.read())
             required_settings = ["bot_token", "server_id", "mod_role_id", "owners"]
             if not all(bool(loaded_settings.get(x)) for x in required_settings):
@@ -65,7 +66,7 @@ class Settings(dict):
         return counters[counter]
 
     def save(self):
-        with open("settings.json", "w") as settings_file:
+        with open(SETTINGS_PATH, "w") as settings_file:
             settings_file.write(json.dumps(self, indent=4))
 
 

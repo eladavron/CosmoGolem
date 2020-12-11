@@ -13,14 +13,14 @@ from tendo import singleton
 
 from _settings import Settings
 from discord.ext import commands
-from discord import Intents, utils
+from discord import Intents, utils, Embed
 
 import _helpers as helpers
-from _helpers import Color
+from _helpers import Color, LOG_PATH
 
 # Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s][%(name)s] %(message)s")
-handler = logging.FileHandler("discord.log", encoding="utf-8", mode="a")
+handler = logging.FileHandler(LOG_PATH, encoding="utf-8", mode="a")
 log = logging.getLogger()
 log.addHandler(handler)
 
@@ -142,7 +142,9 @@ async def on_raw_reaction_add(payload):
         role = utils.get(bot.guild.roles, name=role_name)
         await payload.member.add_roles(role)
         await bot.guild.get_channel(payload.channel_id).send(
-            f"```{payload.member.name} has been granted the role {role_name}```"
+            embed=embedder(
+                title="Role Granted", description=f"{payload.member.name} has been granted the role {role_name}"
+            )
         )
 
 

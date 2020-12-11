@@ -5,6 +5,7 @@ import re
 import logging
 
 from discord.ext import commands
+from _helpers import Color, embedder
 
 log = logging.getLogger("discord")
 
@@ -32,18 +33,23 @@ class Handlers(commands.Cog):
             "%s issued command but got an error: %s", ctx.message.author, str(error)
         )  # For regular command errors
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send("```%s\nType .help to see a list of available commands.```" % str(error))
+            await ctx.send(
+                embed=embedder("Type `.help` to see a list of available commands.", title=str(error), error=True)
+            )
 
         elif isinstance(error, commands.MissingRequiredArgument) or isinstance(
             error, commands.BadArgument
         ):  # For when using wrong arguments
             await ctx.send(
-                "```That's not how you %s!\n%s\nType .help %s to get help.```"
-                % (ctx.invoked_with, str(error), ctx.invoked_with)
+                embed=embedder(
+                    f"Error: ```{str(error)}```\nType `.help {ctx.invoked_with}` to get help.",
+                    title=f"That's not how you `{ctx.invoked_with}`!",
+                    error=True,
+                )
             )
 
         else:  # Technically shouldn't get here.
-            await ctx.send("```%s```" % str(error))
+            await ctx.send(embed=embedder(description=f"Error: ```{str(error)}```", title=f"Unexpected error!", error=True))
 
 
 def setup(bot):

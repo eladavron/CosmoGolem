@@ -1,0 +1,18 @@
+{
+    "bot_token": "",
+    "server_id": 0,
+    "mod_role_id": 0,
+    "imgur": {
+        "id": "",
+        "secret": ""
+    },
+    "owners": [],
+    "users": {},
+    "channels": {},
+    "counters": {
+        "doggo": 0,
+        "catto": 0
+    },
+    "emoji_roles": {},
+    "bedtime": {}
+}

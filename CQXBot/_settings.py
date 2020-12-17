@@ -10,6 +10,11 @@ from _helpers import SETTINGS_PATH
 
 
 class Settings(dict):
+    
+    with open(SETTINGS_PATH, "r") as settings_file:
+        static_settings = json.loads(settings_file.read())
+    
+
     def __init__(self):
         dict.__init__(self)
         if not os.path.isfile(SETTINGS_PATH):
@@ -36,13 +41,15 @@ class Settings(dict):
 
         with open(SETTINGS_PATH, "r") as settings_file:
             loaded_settings = json.loads(settings_file.read())
-            required_settings = ["bot_token", "server_id", "mod_role_id", "owners"]
-            if not all(bool(loaded_settings.get(x)) for x in required_settings):
-                raise SettingMissing(
-                    "A required setting is missing from your settings file! The required fields are: "
-                    + ", ".join(required_settings)
-                )
-            self.update(loaded_settings)
+        
+        required_settings = ["bot_token", "server_id", "mod_role_id", "owners"]
+        if not all(bool(loaded_settings.get(x)) for x in required_settings):
+            raise SettingMissing(
+                "A required setting is missing from your settings file! The required fields are: "
+                + ", ".join(required_settings)
+            )
+        self.update(loaded_settings)
+
 
     def increase_counter(self, counter, amount):
         if "counters" not in self:

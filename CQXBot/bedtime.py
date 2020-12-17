@@ -6,13 +6,9 @@ import re
 import datetime
 from discord import NotFound
 from discord.ext import commands
-from _settings import Settings
 from _helpers import embedder, check_timer
 
 log = logging.getLogger("EmojiRoles")
-
-settings = Settings()
-
 
 class Bedtime(commands.Cog):
     """ The handlers cog class """
@@ -23,7 +19,7 @@ class Bedtime(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if user_bedtime := settings.get("bedtime", {}).get(str(message.author.id)):
+        if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(message.author.id)):
             utc_now = datetime.datetime.utcnow()
             time_in_tz = utc_now + datetime.timedelta(hours=user_bedtime["utc_offset"])
             bedtime = user_bedtime["bedtime"]
@@ -41,33 +37,33 @@ class Bedtime(commands.Cog):
     async def set_bedtime(self, ctx, bedtime: int, morning: int, utc_offset: int):
         await ctx.trigger_typing()
         if not -12 <= utc_offset <= 12:
-            await ctx.send(embed=embedder("UTC offset must bet between -12 and +12!", error=True)
+            await ctx.send(embed=embedder("UTC offset must bet between -12 and +12!", error=True))
             log.info("%s tried to set a UTC Offset of %s for their bedtime", ctx.message.author.name, str(utc_offset))
             return
         if not 0 <= bedtime <= 23:
             log.info("%s tried to set bedtime %s", ctx.message.author.name, str(bedtime))
-            await ctx.send(embed=embedder("Bedtime and morning must be integers between 0 and 23", error=True)
+            await ctx.send(embed=embedder("Bedtime and morning must be integers between 0 and 23", error=True))
             return
         if not 0 <= morning <= 23:
             log.info("%s tried to set morning time of %s", ctx.message.author.name, str(morning))
-            await ctx.send(embedder("Bedtime and morning must be integers between 0 and 23", error=True)
+            await ctx.send(embedder("Bedtime and morning must be integers between 0 and 23", error=True))
             return
         if morning == bedtime:
             log.info("%s tried to set morning equal to bedtime", ctx.message.author.name)
-            await ctx.send(embedder("Bedtime and morning must be different!", error=True)
+            await ctx.send(embedder("Bedtime and morning must be different!", error=True))
             return
         user_bedtime = {"utc_offset": utc_offset, "bedtime": bedtime, "morning": morning}
         log.info("Settings bedtime for %s (%s): %s", ctx.message.author.name, str(ctx.message.author.id), user_bedtime)
-        if not settings.get("bedtime"):
-            settings["bedtime"] = {}
-        settings["bedtime"][str(ctx.message.author.id)] = user_bedtime
-        settings.save()
+        if not self.bot.settings.get("bedtime"):
+            self.bot.settings["bedtime"] = {}
+        self.bot.settings["bedtime"][str(ctx.message.author.id)] = user_bedtime
+        self.bot.settings.save()
         await self.get_bedtime(ctx)
 
     @commands.command(help="Gets the user bedtime")
     async def get_bedtime(self, ctx):
         await ctx.trigger_typing()
-        if user_bedtime := settings.get("bedtime", {}).get(str(ctx.message.author.id)):
+        if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             utc_offset = user_bedtime["utc_offset"]
             await ctx.send(
                 embedder(
@@ -94,13 +90,13 @@ class Bedtime(commands.Cog):
     @commands.command(help="Removes the user's bedtime")
     async def remove_bedtime(self, ctx):
         await ctx.trigger_typing()
-        if settings.get("bedtime", {}).get(str(ctx.message.author.id)):
-            del settings["bedtime"][str(ctx.message.author.id)]
-            settings.save()
+        if self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
+            del self.bot.settings["bedtime"][str(ctx.message.author.id)]
+            self.bot.settings.save()
             log.info("Removing bedtime for %s (%s)", ctx.message.author.name, str(ctx.message.author.id))
-            await ctx.send(embed=embedder(f"{message.author.mention}'s bedtime has been removed."))
+            await ctx.send(embed=embedder(f"{ctx.message.author.mention}'s bedtime has been removed."))
         else:
-            await ctx.send(embed=embeder(f"{message.author.mention} does not have a bedtime set."))
+            await ctx.send(embed=embedder(f"{ctx.message.author.mention} does not have a bedtime set."))
 
     @staticmethod
     def check_if_between_times(start: int, end: int, time_to_check: datetime.datetime):

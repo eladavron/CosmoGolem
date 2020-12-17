@@ -11,7 +11,7 @@ import discord
 
 log = logging.getLogger("helpers")
 
-DATA_FOLDER = os.environ.get("DATAFOLDER", os.path.join(os.getcwd(), "data"))
+DATA_FOLDER = os.environ.get("CQXBOT_DATAPATH", os.path.join(os.getcwd(), "data"))
 LOG_PATH = os.path.join(DATA_FOLDER, "cxqbot.log")
 SETTINGS_PATH = os.path.join(DATA_FOLDER, "settings.json")
 

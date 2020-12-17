@@ -52,7 +52,7 @@ class Commands(commands.Cog):
             log.info("Log cleared!")
             await ctx.send("\N{OK HAND SIGN}")
         except Exception as ex:
-            exception_handler(ex, ctx)
+            await exception_handler(ex, ctx)
         else:
             await ctx.send("\N{OK HAND SIGN}")
 

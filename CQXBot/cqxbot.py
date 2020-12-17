@@ -10,13 +10,10 @@ import logging
 import traceback
 import importlib
 from tendo import singleton
-
-from _settings import Settings
 from discord.ext import commands
 from discord import Intents, utils, Embed
-
-import _helpers as helpers
-from _helpers import Color, LOG_PATH
+from _settings import Settings
+from _helpers import Color, LOG_PATH, embedder
 
 # Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s][%(name)s] %(message)s")
@@ -24,33 +21,32 @@ handler = logging.FileHandler(LOG_PATH, encoding="utf-8", mode="a")
 log = logging.getLogger()
 log.addHandler(handler)
 
-settings = Settings()
-
 ### Global Variables ##
 class Bot(commands.Bot):
-    def __init__(self, settings: Settings, **kwargs):
-        self.settings = settings
-        super().__init__(**kwargs)
+    def __init__(self, **kwargs):
+        self.settings = Settings()
+        super().__init__(owner_ids=self.settings["owners"], **kwargs)
 
     @property
     def guild(self):
-        return self.get_guild(settings["server_id"])
+        return self.get_guild(self.settings["server_id"])
 
 
-bot = Bot(
-    settings,
-    command_prefix=".",
-    description="CosmoQuestX Bot 1.0",
-    owner_ids=settings["owners"],
-    pm_help=True,
-)
+bot = Bot(command_prefix="$", description="CosmoQuestX Bot 1.0", pm_help=True)
 
 
 def startup(debug):
     """
     Startup function
     """
-    startup_extensions = ["handlers", "commands", "eggs", "images", "emoji_roles", "bedtime"]
+    startup_extensions = [
+        "handlers",
+        "commands",
+        "eggs",
+        "images",
+        "emoji_roles",
+        "bedtime",
+    ]
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)
@@ -60,7 +56,7 @@ def startup(debug):
     if not debug:
         bot.loop.create_task(looper())
 
-    bot.run(settings.get("bot_token"))  # This halts until the bot shuts down
+    bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down
 
     # Here the bot is shutting down
     bot.loop.close()
@@ -113,11 +109,8 @@ async def reload(ctx, module):
         module (str): Name of module to reload.
     """
     try:
-        if module == "helpers":
-            importlib.reload(helpers)
-        else:
-            bot.unload_extension(module)
-            bot.load_extension(module)
+        bot.unload_extension(module)
+        bot.load_extension(module)
     except:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
@@ -129,7 +122,7 @@ async def reload(ctx, module):
 @bot.event
 async def on_raw_reaction_add(payload):
     # Check if this channel has any bindings
-    message_reactions = settings.get("emoji_roles", {}).get(str(payload.message_id), {})
+    message_reactions = bot.settings.get("emoji_roles", {}).get(str(payload.message_id), {})
     if str(payload.emoji) in message_reactions:  # If it does, check if this reaction is one of them
         role_name = message_reactions.get(str(payload.emoji))
         log.info(
@@ -141,9 +134,10 @@ async def on_raw_reaction_add(payload):
         )
         role = utils.get(bot.guild.roles, name=role_name)
         await payload.member.add_roles(role)
-        await bot.guild.get_channel(payload.channel_id).send(
+        await payload.member.send(
             embed=embedder(
-                title="Role Granted", description=f"{payload.member.name} has been granted the role {role_name}"
+                title="Role Granted",
+                description=f"{payload.member.name} has been granted the role {role_name}",
             )
         )
 

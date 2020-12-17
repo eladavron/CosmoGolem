@@ -8,13 +8,11 @@ from imgurpython import ImgurClient
 
 import discord
 from discord.ext import commands
-
-from _helpers import Color, embedder, save_file_and_send
 from _settings import Settings
+from _helpers import Color, embedder, save_file_and_send
+
 
 log = logging.getLogger("Images")
-
-settings = Settings()
 
 
 class Images(commands.Cog):
@@ -48,18 +46,18 @@ class Images(commands.Cog):
         await ctx.trigger_typing()
         if em := await imgur_fetcher("cat", ctx):
             em.description = "Here's a catto:"
-            em.set_footer(text="%d cattos served!" % (settings.get_counter("catto") + 1))
+            em.set_footer(text="%d cattos served!" % (self.bot.settings.get_counter("catto") + 1))
             await ctx.send(embed=em)
-            settings.increase_counter("catto", 1)
+            self.bot.settings.increase_counter("catto", 1)
 
     @commands.command(help="Show a random doggo.")
     async def woof(self, ctx):
         await ctx.trigger_typing()
         if em := await imgur_fetcher("dog", ctx):
             em.description = "Here's a doggo:"
-            em.set_footer(text="%d doggos served!" % (settings.get_counter("doggo") + 1))
+            em.set_footer(text="%d doggos served!" % (self.bot.settings.get_counter("doggo") + 1))
             await ctx.send(embed=em)
-            settings.increase_counter("doggo", 1)
+            self.bot.settings.increase_counter("doggo", 1)
 
     @commands.command(help="Make an emoji bigger.")
     async def embiggen(self, ctx, query):
@@ -77,7 +75,7 @@ class Images(commands.Cog):
 
 
 async def imgur_fetcher(query, ctx):
-    imgur_settings = settings.get("imgur")
+    imgur_settings = Settings.static_settings.get("imgur")
     if not all(x in imgur_settings for x in ["id", "secret"]):
         await ctx.channel.send(embed=embedder("Imgur API Key not set up correctly, can't show images!", error=True))
         log.error("Imgur API Key not set up, can't show images!")

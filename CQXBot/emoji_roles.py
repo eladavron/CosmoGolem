@@ -11,9 +11,6 @@ from _helpers import Color, embedder
 
 log = logging.getLogger("EmojiRoles")
 
-settings = Settings()
-
-
 class EmojiRoles(commands.Cog):
     """ The handlers cog class """
 
@@ -21,7 +18,7 @@ class EmojiRoles(commands.Cog):
         self.bot = bot
 
     @commands.command(help="Bind an emoji to a role in a specific channel.")
-    @commands.has_role(settings["mod_role_id"])
+    @commands.has_role(Settings.static_settings["mod_role_id"])
     async def bind_emoji(self, ctx, *args):
         """
         Bind an emoji to a message id and a role, so that reacting to that message will give that user that role.
@@ -30,8 +27,8 @@ class EmojiRoles(commands.Cog):
             A role name, a message ID, and an emoji - in no particular order.
         """
         await ctx.trigger_typing()
-        server_roles = [x.name for x in self.bot.get_guild(settings["server_id"]).roles]
-        server_emojis = [x.id for x in self.bot.get_guild(settings["server_id"]).emojis]
+        server_roles = [x.name for x in self.bot.get_guild(self.bot.settings["server_id"]).roles]
+        server_emojis = [x.id for x in self.bot.get_guild(self.bot.settings["server_id"]).emojis]
         emoji_string = None
         role = None
         message = None
@@ -80,13 +77,13 @@ class EmojiRoles(commands.Cog):
             return
 
         log.info("Binding %s to role %s and message ID %s", emoji_string, role, message.id)
-        if "emoji_roles" not in settings:
-            settings["emoji_roles"] = {}
-        if message.id not in settings["emoji_roles"]:
-            settings["emoji_roles"][message.id] = {}
-        settings["emoji_roles"][message.id][emoji_string] = role
-        await ctx.send("Reacting %s on %s will now grant the role %s" % (emoji_string, message.id, role))
-        settings.save()
+        if "emoji_roles" not in self.bot.settings:
+            self.bot.settings["emoji_roles"] = {}
+        if message.id not in self.bot.settings["emoji_roles"]:
+            self.bot.settings["emoji_roles"][str(message.id)] = {}
+        self.bot.settings["emoji_roles"][str(message.id)][emoji_string] = role
+        await ctx.send(embed=embedder(f"Reacting {emoji_string} on {message.id} will now grant the role {role}"))
+        self.bot.settings.save()
 
     def resolve_emoji_id(self, query):
         """

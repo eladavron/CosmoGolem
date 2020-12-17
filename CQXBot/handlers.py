@@ -48,7 +48,7 @@ class Handlers(commands.Cog):
                 )
             )
 
-        else:  # Technically shouldn't get here.
+        else:  # IF you're here, the bot is broken.
             await ctx.send(embed=embedder(description=f"Error: ```{str(error)}```", title=f"Unexpected error!", error=True))
 
 

@@ -22,8 +22,7 @@ class Images(commands.Cog):
     @commands.command(help="Followed by a search term, fetches a random image from Imgur.")
     async def image(self, ctx, *, query):
         await ctx.trigger_typing()
-        if em := await imgur_fetcher(query, ctx):
-            await ctx.send(embed=em)
+        await self.imgur_fetcher(ctx, query)
 
     @commands.command(help="Show a user's avatar in full.")
     async def avatar(self, ctx, query):
@@ -41,23 +40,15 @@ class Images(commands.Cog):
             em.set_image(url=url)
             await ctx.send(embed=em)
 
-    @commands.command(help="Show a random catto.")
+    @commands.command(help="Show a random catto.", aliases=["cat", "catto", "kitty"])
     async def meow(self, ctx):
         await ctx.trigger_typing()
-        if em := await imgur_fetcher("cat", ctx):
-            em.description = "Here's a catto:"
-            em.set_footer(text="%d cattos served!" % (self.bot.settings.get_counter("catto") + 1))
-            await ctx.send(embed=em)
-            self.bot.settings.increase_counter("catto", 1)
+        await self.imgur_fetcher(ctx, query="cat", name="catto")
 
-    @commands.command(help="Show a random doggo.")
+    @commands.command(help="Show a random doggo.", aliases=["dog", "doggo", "doggy", "puppy", "pupper", "pup"])
     async def woof(self, ctx):
         await ctx.trigger_typing()
-        if em := await imgur_fetcher("dog", ctx):
-            em.description = "Here's a doggo:"
-            em.set_footer(text="%d doggos served!" % (self.bot.settings.get_counter("doggo") + 1))
-            await ctx.send(embed=em)
-            self.bot.settings.increase_counter("doggo", 1)
+        await self.imgur_fetcher(ctx, query="dog", name="doggo")
 
     @commands.command(help="Make an emoji bigger.")
     async def embiggen(self, ctx, query):
@@ -73,44 +64,45 @@ class Images(commands.Cog):
         else:
             await ctx.send(embed=embedder(f'"{query}" is not a recognized emoji.', error=True))
 
+    async def imgur_fetcher(self, ctx, query, name=None):
+        imgur_settings = Settings.static_settings.get("imgur")
+        if not all(x in imgur_settings for x in ["id", "secret"]):
+            await ctx.channel.send(embed=embedder("Imgur API Key not set up correctly, can't show images!", error=True))
+            log.error("Imgur API Key not set up, can't show images!")
+            return None
 
-async def imgur_fetcher(query, ctx):
-    imgur_settings = Settings.static_settings.get("imgur")
-    if not all(x in imgur_settings for x in ["id", "secret"]):
-        await ctx.channel.send(embed=embedder("Imgur API Key not set up correctly, can't show images!", error=True))
-        log.error("Imgur API Key not set up, can't show images!")
-        return None
+        img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
+        resultList = img_client.gallery_search(query)
+        if not resultList:
+            return embedder(f'Sorry, no results found for "{query}"')
 
-    img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
-    resultList = img_client.gallery_search(query)
-    if len(resultList) <= 0:
-        return embedder(f'Sorry, no results found for "{query}"')
+        selectedImage = random.choice(resultList)
+        if selectedImage.is_album:
+            album_id = selectedImage.id
+            imageList = img_client.get_album_images(album_id)
+            selectedImage = random.choice(imageList)
 
-    selectedImage = random.choice(resultList)
-    if selectedImage.is_album:
-        album_id = selectedImage.id
-        imageList = img_client.get_album_images(album_id)
-        selectedImage = random.choice(imageList)
+        isNSFW = selectedImage.nsfw
+        if ctx.channel.is_nsfw():
+            isNSFW = False  # Override NSFW setting if channel allows NSFW
 
-    isNSFW = selectedImage.nsfw
-    if ctx.channel.is_nsfw():
-        isNSFW = False  # Override NSFW setting if channel allows NSFW
-
-    url = selectedImage.gifv if selectedImage.animated else selectedImage.link
-    message = 'Here\'s a random image of "%s":\n%s' % (
-        query,
-        "***Warning: NSFW image!***\n<%s>" % (url) if isNSFW else "",
-    )
-    color = Color.RED if isNSFW else Color.DEFAULT
-    em = embedder(description=message, url=selectedImage.link, color=color)
-    if not isNSFW:
-        em.set_image(url=selectedImage.link)
-    log.info(
-        "Attempting to embed %s as an %s",
-        url,
-        "animation" if selectedImage.animated else "image",
-    )
-    return em
+        url = selectedImage.gifv if selectedImage.animated else selectedImage.link
+        message = 'Here\'s a random image of "%s":\n%s' % (
+            query,
+            "***Warning: NSFW image!***\n<%s>" % (url) if isNSFW else "",
+        )
+        color = Color.RED if isNSFW else Color.DEFAULT
+        em = embedder(description=message, url=selectedImage.link, color=color)
+        if not isNSFW:
+            em.set_image(url=selectedImage.link)
+        log.info("Attempting to embed %s as an %s", url, "animation" if selectedImage.animated else "image")
+        if name:
+            em.description = f"Here's a {name}:"
+            count = self.bot.settings.get_counter(name) + 1
+            em.set_footer(text=f"{count} {name}s served!")
+            self.bot.settings.increase_counter(name, 1)
+        await ctx.send(embed=em)
+        
 
 
 def setup(bot):

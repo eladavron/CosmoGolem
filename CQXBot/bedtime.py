@@ -10,6 +10,7 @@ from _helpers import embedder, check_timer
 
 log = logging.getLogger("EmojiRoles")
 
+
 class Bedtime(commands.Cog):
     """ The handlers cog class """
 
@@ -28,10 +29,12 @@ class Bedtime(commands.Cog):
                 if check_timer(self, "bedtime_" + str(message.author.id)):
                     log.info("%s has been told to go to bed!", message.author.name)
                     await message.channel.send(
-                        embed=embedder(f"Hey {message.author.mention}, it's past your bedtime! Go to bed! 🛌💤", title="Bedtime!")
+                        embed=embedder(
+                            f"Hey {message.author.mention}, it's past your bedtime! Go to bed! 🛌💤", title="Bedtime!"
+                        )
                     )
                 else:
-                    log.info("%s was up past his betdime but already warned recently")
+                    log.info("%s was up past his betdime but already warned recently", message.author)
 
     @commands.command(help="Set a bedtime, during which if the user posts, they'll be scolded.")
     async def set_bedtime(self, ctx, bedtime: int, morning: int, utc_offset: int):
@@ -46,11 +49,11 @@ class Bedtime(commands.Cog):
             return
         if not 0 <= morning <= 23:
             log.info("%s tried to set morning time of %s", ctx.message.author.name, str(morning))
-            await ctx.send(embedder("Bedtime and morning must be integers between 0 and 23", error=True))
+            await ctx.send(embed=embedder("Bedtime and morning must be integers between 0 and 23", error=True))
             return
         if morning == bedtime:
             log.info("%s tried to set morning equal to bedtime", ctx.message.author.name)
-            await ctx.send(embedder("Bedtime and morning must be different!", error=True))
+            await ctx.send(embed=embedder("Bedtime and morning must be different!", error=True))
             return
         user_bedtime = {"utc_offset": utc_offset, "bedtime": bedtime, "morning": morning}
         log.info("Settings bedtime for %s (%s): %s", ctx.message.author.name, str(ctx.message.author.id), user_bedtime)
@@ -66,7 +69,7 @@ class Bedtime(commands.Cog):
         if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             utc_offset = user_bedtime["utc_offset"]
             await ctx.send(
-                embedder(
+                embed=embedder(
                     "%s's bedtime is set between %s and %s in %s"
                     % (
                         ctx.message.author.mention,
@@ -81,11 +84,13 @@ class Bedtime(commands.Cog):
 
     @commands.command(help="A bedtime helper")
     async def bedtime(self, ctx):
-        await ctx.send(embed=embedder(
-            "To set your bedtime, type `.set_bedtime <bedtime> <morning> <utc_offset>`\n"
-            "with `<bedtime>` and `<morning>` being integers between 0 and 23, and `<utc_offset>` being between -12 and 12.\n"
-            "\nTo check your bedtime, type `.get_bedtime`\nTo remove your bedtime, type `.remove_bedtime`"
-        ))
+        await ctx.send(
+            embed=embedder(
+                "To set your bedtime, type `.set_bedtime <bedtime> <morning> <utc_offset>`\n"
+                "with `<bedtime>` and `<morning>` being integers between 0 and 23, and `<utc_offset>` being between -12 and 12.\n"
+                "\nTo check your bedtime, type `.get_bedtime`\nTo remove your bedtime, type `.remove_bedtime`"
+            )
+        )
 
     @commands.command(help="Removes the user's bedtime")
     async def remove_bedtime(self, ctx):

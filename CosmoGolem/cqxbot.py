@@ -1,5 +1,5 @@
 """
-cqxbot's main module
+CosmoGolem's main module
 """
 
 import os
@@ -32,7 +32,7 @@ class Bot(commands.Bot):
         return self.get_guild(self.settings["server_id"])
 
 
-bot = Bot(command_prefix="$", description="CosmoQuestX Bot 1.0", pm_help=True)
+bot = Bot(command_prefix="$", description="CosmoGolem 1.0", pm_help=True)
 
 
 def startup(debug):

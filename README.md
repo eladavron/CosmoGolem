@@ -1,4 +1,4 @@
-# CosmoQuestX Bot
+# CosmoGolem
 A bot for the CosmoQuestX Discord Server.  
 ***Both the bot and this readme file are still under construciton!***
 
@@ -20,7 +20,7 @@ use `docker-compose`:
   (Make sure you install pip as well)
 * Once installed, navigate to the root of the repository and type:  
   `pip install -r requirements.txt`
-* Start the bot using `python CQXBot/cqxbot.py`
+* Start the bot using `python CosmoGolem/cqxbot.py`
 
 ### The Settings File
 You will have to edit the settings file in the `data` folder before you can actually use the bot.  

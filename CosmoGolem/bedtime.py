@@ -86,9 +86,11 @@ class Bedtime(commands.Cog):
     async def bedtime(self, ctx):
         await ctx.send(
             embed=embedder(
-                "To set your bedtime, type `.set_bedtime <bedtime> <morning> <utc_offset>`\n"
-                "with `<bedtime>` and `<morning>` being integers between 0 and 23, and `<utc_offset>` being between -12 and 12.\n"
-                "\nTo check your bedtime, type `.get_bedtime`\nTo remove your bedtime, type `.remove_bedtime`"
+                f"To set your bedtime, type `{self.bot.command_prefix}set_bedtime <bedtime> <morning> <utc_offset>`\n"
+                "with `<bedtime>` and `<morning>` being integers between 0 and 23,"
+                "and `<utc_offset>` being between -12 and 12.\n"
+                f"\nTo check your bedtime, type `{self.bot.command_prefix}get_bedtime`\n"
+                f"To remove your bedtime, type `{self.bot.command_prefix}remove_bedtime`"
             )
         )
 

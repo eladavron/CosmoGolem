@@ -3,7 +3,7 @@ FROM gorialis/discord.py
 WORKDIR /
 
 COPY requirements.txt ./
-COPY CQXBot app
+COPY CosmoGolem app
 COPY data data
 
 VOLUME [ "/data" ]

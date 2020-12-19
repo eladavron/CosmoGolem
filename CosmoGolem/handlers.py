@@ -34,7 +34,11 @@ class Handlers(commands.Cog):
         )  # For regular command errors
         if isinstance(error, commands.CommandNotFound):
             await ctx.send(
-                embed=embedder("Type `.help` to see a list of available commands.", title=str(error), error=True)
+                embed=embedder(
+                    f"Type `{self.bot.command_prefix}help` to see a list of available commands.",
+                    title=str(error),
+                    error=True
+                )
             )
 
         elif isinstance(error, commands.MissingRequiredArgument) or isinstance(
@@ -42,7 +46,7 @@ class Handlers(commands.Cog):
         ):  # For when using wrong arguments
             await ctx.send(
                 embed=embedder(
-                    f"Error: ```{str(error)}```\nType `.help {ctx.invoked_with}` to get help.",
+                    f"Error: ```{str(error)}```\nType `{self.bot.command_prefix}help {ctx.invoked_with}` to get help.",
                     title=f"That's not how you `{ctx.invoked_with}`!",
                     error=True,
                 )

@@ -26,7 +26,7 @@ class Bedtime(commands.Cog):
             bedtime = user_bedtime["bedtime"]
             morning = user_bedtime["morning"]
             if Bedtime.check_if_between_times(bedtime, morning, time_in_tz):
-                if check_timer(self, "bedtime_" + str(message.author.id)):
+                if check_timer(self, "bedtime_" + str(message.author.id), runtime=60*60):
                     log.info("%s has been told to go to bed!", message.author.name)
                     await message.channel.send(
                         embed=embedder(

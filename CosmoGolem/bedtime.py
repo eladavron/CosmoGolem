@@ -1,10 +1,7 @@
 """ Emoji Roles functionality """
 
 import logging
-import discord
-import re
 import datetime
-from discord import NotFound
 from discord.ext import commands
 from _helpers import embedder, check_timer
 
@@ -20,6 +17,7 @@ class Bedtime(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        """ Checks incoming messages to see if their authors should be in bed """
         if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(message.author.id)):
             utc_now = datetime.datetime.utcnow()
             time_in_tz = utc_now + datetime.timedelta(hours=user_bedtime["utc_offset"])
@@ -38,6 +36,14 @@ class Bedtime(commands.Cog):
 
     @commands.command(help="Set a bedtime, during which if the user posts, they'll be scolded.")
     async def set_bedtime(self, ctx, bedtime: int, morning: int, utc_offset: int):
+        """Sets a bedtime for the requesting user
+
+        Args:
+            ctx (context): The context of the commnad
+            bedtime (int): The time (in hours, 0-23) from which the user will be scolded
+            morning (int): The time (in hours, 0-23) until which the user will be scolded
+            utc_offset (int): The time (in hours, -12-12) offset of the user from UTC
+        """
         await ctx.trigger_typing()
         if not -12 <= utc_offset <= 12:
             await ctx.send(embed=embedder("UTC offset must bet between -12 and +12!", error=True))
@@ -65,6 +71,7 @@ class Bedtime(commands.Cog):
 
     @commands.command(help="Gets the user bedtime")
     async def get_bedtime(self, ctx):
+        """ Retrieve a user's bedtime """
         await ctx.trigger_typing()
         if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             utc_offset = user_bedtime["utc_offset"]
@@ -84,6 +91,7 @@ class Bedtime(commands.Cog):
 
     @commands.command(help="A bedtime helper")
     async def bedtime(self, ctx):
+        """ A helper command with some command references """
         await ctx.send(
             embed=embedder(
                 f"To set your bedtime, type `{self.bot.command_prefix}set_bedtime <bedtime> <morning> <utc_offset>`\n"
@@ -96,6 +104,7 @@ class Bedtime(commands.Cog):
 
     @commands.command(help="Removes the user's bedtime")
     async def remove_bedtime(self, ctx):
+        """ Remove a user's bedtime """
         await ctx.trigger_typing()
         if self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             del self.bot.settings["bedtime"][str(ctx.message.author.id)]
@@ -107,6 +116,7 @@ class Bedtime(commands.Cog):
 
     @staticmethod
     def check_if_between_times(start: int, end: int, time_to_check: datetime.datetime):
+        """ A utility function checking if a time is between two other times """
         if start < end:  # If 'morning' is not after midnight comapred to bedtime
             return start <= time_to_check.hour <= end
         return start <= time_to_check.hour or time_to_check.hour < end

@@ -3,9 +3,7 @@ The module responsible for all of the easter eggs.
 """
 
 import re
-import os
 import logging
-import discord
 from discord.ext import commands
 from _helpers import embedder, check_timer, get_channel_name
 
@@ -21,7 +19,9 @@ class Eggs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        """ All easter eggs are listened to by a single "on_message" - splitting it up would mean multiple files and who has the patience for that """
+        """
+        All easter eggs are listened to by a single "on_message"
+        """
         if re.search(r"b+\W*e+\W*n+\W*n+\W*u+", message.content, re.IGNORECASE):  # Bennu
             if check_timer(self, "bennu_" + str(message.channel.id)):
                 log.info(

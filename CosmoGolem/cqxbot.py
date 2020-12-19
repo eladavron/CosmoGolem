@@ -1,19 +1,13 @@
 """
 CosmoGolem's main module
 """
-
-import os
-import sys
-import asyncio
-import argparse
 import logging
+import argparse
 import traceback
-import importlib
 from tendo import singleton
 from discord.ext import commands
-from discord import Intents, utils, Embed
 from _settings import Settings
-from _helpers import Color, LOG_PATH, embedder
+from _helpers import LOG_PATH
 
 # Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s][%(name)s] %(message)s")
@@ -23,19 +17,22 @@ log.addHandler(handler)
 
 ### Global Variables ##
 class Bot(commands.Bot):
+    """ An extension of the Bot command that also holds settings """
     def __init__(self, **kwargs):
         self.settings = Settings()
+        self.debug = False
         super().__init__(owner_ids=self.settings["owners"], **kwargs)
 
     @property
     def guild(self):
+        """ A shortcut for getting Guild ID """
         return self.get_guild(self.settings["server_id"])
 
 
 bot = Bot(command_prefix="$", description="CosmoGolem 1.0", pm_help=True)
 
 
-def startup(debug):
+def startup(debug: bool):
     """
     Startup function
     """
@@ -53,9 +50,7 @@ def startup(debug):
         except:
             log.error("Failed to load extension %s!\n%s", extension, traceback.format_exc())
 
-    if not debug:
-        bot.loop.create_task(looper())
-
+    bot.debug = debug
     bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down
 
     # Here the bot is shutting down
@@ -79,7 +74,7 @@ async def load(ctx, module):
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s loaded!", module)
-        await ctx.send("\N{OK HAND SIGN}")
+        await ctx.send("🤘")
 
 
 @bot.command(hidden=True)
@@ -97,7 +92,7 @@ async def unload(ctx, module):
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s unloaded!", module)
-        await ctx.send("\N{OK HAND SIGN}")
+        await ctx.send("🤘")
 
 
 @bot.command(hidden=True)
@@ -116,45 +111,7 @@ async def reload(ctx, module):
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
         log.info("Module %s reloaded!", module)
-        await ctx.send("\N{OK HAND SIGN}")
-
-
-@bot.event
-async def on_raw_reaction_add(payload):
-    # Check if this channel has any bindings
-    message_reactions = bot.settings.get("emoji_roles", {}).get(str(payload.message_id), {})
-    if str(payload.emoji) in message_reactions:  # If it does, check if this reaction is one of them
-        role_name = message_reactions.get(str(payload.emoji))
-        log.info(
-            "User %s has reacted with %s in %s and will be granted the role %s",
-            payload.member,
-            str(payload.emoji),
-            payload.message_id,
-            role_name,
-        )
-        role = utils.get(bot.guild.roles, name=role_name)
-        await payload.member.add_roles(role)
-        await payload.member.send(
-            embed=embedder(
-                title="Role Granted",
-                description=f"{payload.member.name} has been granted the role {role_name}",
-            )
-        )
-
-
-async def looper():
-    """
-    Handles timed tasks
-    """
-    while True:
-        await bot.wait_until_ready()
-
-        import loopers
-
-        await loopers.loopers(bot)
-        del loopers
-
-        await asyncio.sleep(300)  # Wait 5 minutes
+        await ctx.send("🤘")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,12 @@
 """ Emoji Roles functionality """
 
 import logging
-import discord
 import re
 import emoji
-from discord import NotFound, Embed
+from discord import NotFound, utils
 from discord.ext import commands
 from _settings import Settings
-from _helpers import Color, embedder
+from _helpers import embedder
 
 log = logging.getLogger("EmojiRoles")
 
@@ -17,7 +16,7 @@ class EmojiRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help="Bind an emoji to a role in a specific channel.")
+    @commands.command(help="Bind an emoji to a role in a specific channel.", aliases=["bind"])
     @commands.has_role(Settings.static_settings["mod_role_id"])
     async def bind_emoji(self, ctx, *args):
         """
@@ -85,6 +84,64 @@ class EmojiRoles(commands.Cog):
         await ctx.send(embed=embedder(f"Reacting {emoji_string} on {message.id} will now grant the role {role}"))
         self.bot.settings.save()
 
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        """ If a reaction is added, checks if it's bount to that message and a role and grats it if so """
+        # Check if this channel has any bindings
+        message_reactions = self.bot.settings.get("emoji_roles", {}).get(str(payload.message_id), {})
+        if str(payload.emoji) in message_reactions:  # If it does, check if this reaction is one of them
+            role_name = message_reactions.get(str(payload.emoji))
+            role = utils.get(self.bot.guild.roles, name=role_name)
+            if role not in payload.member.roles:
+                log.info(
+                    "User %s has reacted with %s in %s and will be granted the role %s",
+                    payload.member,
+                    str(payload.emoji),
+                    payload.message_id,
+                    role_name,
+                )
+                await payload.member.add_roles(role)
+                await payload.member.send(
+                    embed=embedder(
+                        title="Role Granted",
+                        description=f"{payload.member.name} has been granted the role {role_name}",
+                    )
+                )
+            else:
+                log.info(
+                    "User %s has reacted with %s in %s but already has the role %s",
+                    payload.member,
+                    str(payload.emoji),
+                    payload.message_id,
+                    role_name,
+                )
+
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        """ If a reaction is added, checks if it's bount to that message and a role and removes it if so """
+        # Check if this channel has any bindings
+        message_reactions = self.bot.settings.get("emoji_roles", {}).get(str(payload.message_id), {})
+        if str(payload.emoji) in message_reactions:  # If it does, check if this reaction is one of them
+            role_name = message_reactions.get(str(payload.emoji))
+            role = utils.get(self.bot.guild.roles, name=role_name)
+            member = await self.bot.guild.fetch_member(payload.user_id)
+            if role in member.roles:
+                log.info(
+                   "User %s has removed reaction %s from %s and the role %s will be removed from them.",
+                    member.name,
+                    str(payload.emoji),
+                    payload.message_id,
+                    role_name,
+                )
+                await member.remove_roles(role)
+                await member.send(
+                    embed=embedder(
+                        title="Role Removed",
+                        description=f"{member.name} had the role {role_name} removed",
+                    )
+                )
+
     def resolve_emoji_id(self, query):
         """
         Resolve an emoji to either the Unicode set or a custom emoji in this server.
@@ -95,14 +152,12 @@ class EmojiRoles(commands.Cog):
         Returns:
             int|str: Emoji ID (int) if custom, or ASCII code.
         """
+        if unicode_emoji := emoji.UNICODE_EMOJI.get(query):
+            return unicode_emoji
         custom_emoji_pattern = r"^\<a?\:(\S+)\:(\d+)\>$"
-        if query in emoji.UNICODE_EMOJI:
-            string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
-            return re.match(r"U0+(\S+)", string).group(1)
-        elif match := re.match(custom_emoji_pattern, query):
+        if match := re.match(custom_emoji_pattern, query):
             return int(match.group(2))
-        else:
-            return None
+        return None
 
     async def resolve_message(self, message_id):
         """

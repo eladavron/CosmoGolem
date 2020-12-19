@@ -1,19 +1,15 @@
 """ Generic Bot Commands """
 
-import os
 import io
 import re
 import logging
 
-import pprint
-
 import urbandictionary as ud
-
 import discord
 from discord.ext import commands
 from _settings import Settings
 from _helpers import Color, LOG_PATH, embedder, exception_handler
-from archive import archive, archive_server, parse_channel_role_overrides
+from archive import archive, archive_server
 
 log = logging.getLogger("Commands")
 
@@ -50,11 +46,11 @@ class Commands(commands.Cog):
             with open(LOG_PATH) as log_file:
                 log_file.write("\n=========\n")
             log.info("Log cleared!")
-            await ctx.send("\N{OK HAND SIGN}")
+            await ctx.send("🤘")
         except Exception as ex:
             await exception_handler(ex, ctx)
         else:
-            await ctx.send("\N{OK HAND SIGN}")
+            await ctx.send("🤘")
 
     @commands.command(help="Get the UrbanDictionary definition(s) for your query.")
     async def ud(self, ctx, *, query):
@@ -66,37 +62,37 @@ class Commands(commands.Cog):
         else:
             max_lines = 3
         log.info("Searching UrbanDictionary for '%s'", query)
-        defList = ud.define(query)
-        log.info("Found %d items!", len(defList))
-        if defList:
+        def_list = ud.define(query)
+        log.info("Found %d items!", len(def_list))
+        if def_list:
             await ctx.send(embed=embedder(description=f"No UrbanDictionary definition found for '{query}'", error=True))
 
         else:
             await ctx.send(
                 "Found `%d` UrbanDictionary definition%s for `%s`:"
-                % (len(defList), "s" if len(defList) > 1 else "", query)
+                % (len(def_list), "s" if len(def_list) > 1 else "", query)
             )
             shown = 0
-            for defin in defList:
+            for defin in def_list:
                 shown += 1
                 if shown > max_lines:
                     break
-                em = embedder(
+                embed = embedder(
                     description=f"{defin.definition}\n\n**Usage Example:**\n*{defin.example}*",
                     title=defin.word,
                 )
-                em.url = 'https://www.urbandictionary.com/define.php?term="%s"' % query.replace(" ", "+")
-                em.set_footer(
+                embed.url = 'https://www.urbandictionary.com/define.php?term="%s"' % query.replace(" ", "+")
+                embed.set_footer(
                     text="\N{THUMBS UP SIGN}: %d\t\t\N{THUMBS DOWN SIGN}: %d" % (defin.upvotes, defin.downvotes)
                 )
-                await ctx.send(embed=em)
-            if len(defList) > max_lines:
-                await ctx.send("%d definitions not displayed." % (len(defList) - max_lines))
+                await ctx.send(embed=embed)
+            if len(def_list) > max_lines:
+                await ctx.send("%d definitions not displayed." % (len(def_list) - max_lines))
 
     # Mod Commands
     @commands.command(help="Posts the given message or image to the given channel as the bot.")
     @commands.has_role(Settings.static_settings["mod_role_id"])
-    async def echo(self, ctx, channel_name, *, echoString=None):
+    async def echo(self, ctx, channel_name, *, echo_string=None):
         """ Allows puppeteering the bot by having it send commands or images to other channels """
         if not ctx.message.channel_mentions:
             log.error(
@@ -107,17 +103,17 @@ class Commands(commands.Cog):
             await ctx.send('Error! Could not find channel "%s"!', channel_name)
         else:
             channel = ctx.message.channel_mentions[0]
-            log.info('%s echoed "%s" to "%s"', ctx.message.author, echoString, channel_name)
+            log.info('%s echoed "%s" to "%s"', ctx.message.author, echo_string, channel_name)
             if ctx.message.attachments:
                 for att in ctx.message.attachments:
-                    f = io.BytesIO()
+                    file_attach = io.BytesIO()
                     filename = att.filename
-                    await att.save(f)
-                    f.seek(0)
-                    await channel.send(file=discord.File(f, filename=filename))
-            elif echoString is None:
+                    await att.save(file_attach)
+                    file_attach.seek(0)
+                    await channel.send(file=discord.File(file_attach, filename=filename))
+            elif echo_string is None:
                 await ctx.send("Cannot echo an empty message!")
-            await channel.send(embed=embedder(echoString))
+            await channel.send(embed=embedder(echo_string))
 
     ### Generic Commands ###
     @commands.command(help="Gives generic details about the bot.")

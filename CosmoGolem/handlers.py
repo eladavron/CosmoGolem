@@ -1,11 +1,10 @@
 """ Various event handlers """
 
-import os
 import re
 import logging
 
 from discord.ext import commands
-from _helpers import Color, embedder
+from _helpers import embedder, Color
 
 log = logging.getLogger("discord")
 
@@ -20,6 +19,13 @@ class Handlers(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         """ What happens when the bot is ready """
+        bot_commands = self.bot.settings.get("channels", {}).get("bot_commands")
+        if bot_commands:
+            ctx = self.bot.guild.get_channel(bot_commands)
+            if self.bot.debug:
+                await ctx.send(embed=embedder("CosmoGolem is in Debug mode!", color=Color.YELLOW))
+            else:
+                await ctx.send(embed=embedder("CosmoGolem is Online!", color=Color.GREEN))
         log.info("*** Client ready! ***")
 
     @commands.Cog.listener()
@@ -41,9 +47,8 @@ class Handlers(commands.Cog):
                 )
             )
 
-        elif isinstance(error, commands.MissingRequiredArgument) or isinstance(
-            error, commands.BadArgument
-        ):  # For when using wrong arguments
+        elif isinstance(error, (commands.MissingRequiredArgument, commands.BadArgument)):
+            # For when using wrong arguments
             await ctx.send(
                 embed=embedder(
                     f"Error: ```{str(error)}```\nType `{self.bot.command_prefix}help {ctx.invoked_with}` to get help.",
@@ -53,8 +58,15 @@ class Handlers(commands.Cog):
             )
 
         else:  # IF you're here, the bot is broken.
-            await ctx.send(embed=embedder(description=f"Error: ```{str(error)}```", title=f"Unexpected error!", error=True))
-
+            await ctx.send(
+                embed=embedder(
+                    description=f"Error: ```{str(error)}```\nSee logs for more details.",
+                    title="Unexpected error!",
+                    error=True
+                )
+            )
+            raise error
 
 def setup(bot):
+    """ Cog init """
     bot.add_cog(Handlers(bot))

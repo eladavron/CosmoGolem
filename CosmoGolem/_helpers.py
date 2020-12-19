@@ -17,10 +17,11 @@ SETTINGS_PATH = os.path.join(DATA_FOLDER, "settings.json")
 
 ### Enum Classes ###
 class Color(Enum):
+    """ Predefined Colors """
     RED = 0xFF0000
     NAVY = 0x000080
     AQUA = 0x00FFFF
-    LIME = 0x00FF00
+    GREEN = 0x00FF00
     YELLOW = 0xFFFF00
     DEFAULT = 0x9B59B6
 
@@ -37,10 +38,9 @@ def get_channel_name(channel):
     """
     if isinstance(channel, discord.TextChannel):
         return channel.name
-    elif isinstance(channel, discord.DMChannel):
+    if isinstance(channel, discord.DMChannel):
         return "a private message"
-    else:
-        return "an unknown channel type"
+    return "an unknown channel type"
 
 
 def embedder(description: str, color:Color=None, title:str=None, error=False, **kwargs):
@@ -79,15 +79,14 @@ def check_timer(self, timer_name, runtime: int = 60 * 5):
     if (timer_name not in self.timers) or self.timers[timer_name] == 0:
         self.timers[timer_name] = time.time()
         return True
-    else:
-        if (time.time() - self.timers[timer_name]) < runtime:
-            return False
-        else:
-            self.timers[timer_name] = time.time()
-            return True
+    if (time.time() - self.timers[timer_name]) < runtime:
+        return False
+    self.timers[timer_name] = time.time()
+    return True
 
 
 async def exception_handler(exception, ctx=None):
+    """ In case of an exception, print it to the user """
     if exception is discord.Forbidden:
         log.error("ERROR: Attempted to write to a forbidden channel")
     else:
@@ -101,11 +100,12 @@ async def exception_handler(exception, ctx=None):
 
 
 async def save_file_and_send(ctx, path):
-    r = requests.get(path, allow_redirects=True)
+    """ A utility function to save a file and send it to the user """
+    request = requests.get(path, allow_redirects=True)
     filename = os.path.basename(path)
     local_path = os.path.join(tempfile.gettempdir(), filename)
-    with open(tempfile, "wb") as f:
-        f.write(r.content)
+    with open(local_path, "wb") as temp:
+        temp.write(request.content)
     await ctx.send(file=discord.File(local_path))
     os.remove(local_path)
 

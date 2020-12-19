@@ -28,8 +28,8 @@ def parse_message(msg: discord.Message):
 
     if msg.attachments:
         message_metadata["attachments"] = []
-        for at in msg.attachments:
-            message_metadata["attachments"].append(at.url)
+        for attachment in msg.attachments:
+            message_metadata["attachments"].append(attachment.url)
             # await at.save(f"{at.id}_{at.filename}")
 
     message_metadata["meta"] = {
@@ -42,6 +42,7 @@ def parse_message(msg: discord.Message):
 
 
 def parse_channel_role_overrides(which_channel: discord.TextChannel):
+    """ Checks if the channel has any channel overrides and returns them """
     dic = {}
     for role in which_channel.changed_roles:
         dic[role.name] = {x[0]: x[1] for x in list(filter(lambda f: f[1] is not None, which_channel.overwrites[role]))}
@@ -73,8 +74,8 @@ async def archive(
     metadata["message_log"] = full_log
 
     temp_file = os.path.join(tempfile.gettempdir(), channel_to_archive.name + ".json")
-    with open(temp_file, "w") as f:
-        f.write(json.dumps(metadata, indent=4))
+    with open(temp_file, "w") as target_file:
+        target_file.write(json.dumps(metadata, indent=4))
 
     if where_to_upload:
         await where_to_upload.send(file=discord.File(temp_file))
@@ -84,6 +85,7 @@ async def archive(
 
 
 async def archive_server(where_to_upload: discord.TextChannel):
+    """ Artchive and entire server channel by channel """
     guild = where_to_upload.guild
     files_to_archive = []
     for channel in guild.text_channels:

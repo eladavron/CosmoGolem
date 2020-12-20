@@ -52,43 +52,6 @@ class Commands(commands.Cog):
         else:
             await ctx.send("🤘")
 
-    @commands.command(help="Get the UrbanDictionary definition(s) for your query.")
-    async def ud(self, ctx, *, query):
-        """ Urban Dictionary search """
-        compiled = re.search(r"(\d+)\s(.+)", query)
-        if compiled is not None:
-            query = compiled.group(2)
-            max_lines = int(compiled.group(1))
-        else:
-            max_lines = 3
-        log.info("Searching UrbanDictionary for '%s'", query)
-        def_list = ud.define(query)
-        log.info("Found %d items!", len(def_list))
-        if def_list:
-            await ctx.send(embed=embedder(description=f"No UrbanDictionary definition found for '{query}'", error=True))
-
-        else:
-            await ctx.send(
-                "Found `%d` UrbanDictionary definition%s for `%s`:"
-                % (len(def_list), "s" if len(def_list) > 1 else "", query)
-            )
-            shown = 0
-            for defin in def_list:
-                shown += 1
-                if shown > max_lines:
-                    break
-                embed = embedder(
-                    description=f"{defin.definition}\n\n**Usage Example:**\n*{defin.example}*",
-                    title=defin.word,
-                )
-                embed.url = 'https://www.urbandictionary.com/define.php?term="%s"' % query.replace(" ", "+")
-                embed.set_footer(
-                    text="\N{THUMBS UP SIGN}: %d\t\t\N{THUMBS DOWN SIGN}: %d" % (defin.upvotes, defin.downvotes)
-                )
-                await ctx.send(embed=embed)
-            if len(def_list) > max_lines:
-                await ctx.send("%d definitions not displayed." % (len(def_list) - max_lines))
-
     # Mod Commands
     @commands.command(help="Posts the given message or image to the given channel as the bot.")
     @commands.has_role(Settings.static_settings["mod_role_id"])

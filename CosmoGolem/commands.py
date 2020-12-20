@@ -1,10 +1,8 @@
 """ Generic Bot Commands """
 
 import io
-import re
 import logging
 
-import urbandictionary as ud
 import discord
 from discord.ext import commands
 from _settings import Settings

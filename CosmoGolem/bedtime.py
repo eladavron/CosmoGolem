@@ -124,6 +124,15 @@ class Bedtime(commands.Cog):
 
     @staticmethod
     def check_if_next_morning_is_weekend(morning: int, relative_to_time: datetime.datetime):
+        """Checks if tomorrow morning is a weekend
+
+        Args:
+            morning (int): The morning as defined by the user
+            relative_to_time (datetime.datetime): The time to check (preferably current time in user's tz)
+
+        Returns:
+            bool: True if tomorrow morning is a weekend (Saturday or Sunday)
+        """
         if relative_to_time.hour < morning:  # Morning is today
             return relative_to_time.weekday >= 5  # 5 is Saturday, 6 is Sunday
         # Morning is tomorrow

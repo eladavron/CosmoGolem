@@ -62,7 +62,7 @@ class Images(commands.Cog):
         if query in emoji.UNICODE_EMOJI:
             string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
             code = re.match(r"U0+(\S+)", string).group(1)
-            path = f"https://github.com/twitter/twemoji/blob/gh-pages/36x36/{code}png?raw=true"
+            path = f"https://twemoji.maxcdn.com/v/latest/72x72/{code}.png"
             await save_file_and_send(ctx, path)
         elif re.match(r"^\<\:(\S+)\:(\d+)\>$", query):
             emoji_id = re.match(r"^\<\:(\S+)\:(\d+)\>$", query).group(2)

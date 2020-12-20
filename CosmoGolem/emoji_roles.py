@@ -138,7 +138,7 @@ class EmojiRoles(commands.Cog):
                 await member.send(
                     embed=embedder(
                         title="Role Removed",
-                        description=f"{member.name} had the role {role_name} removed",
+                        description=f"{member.name} had the role `{role_name}` removed",
                     )
                 )
 

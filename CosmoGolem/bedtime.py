@@ -23,16 +23,17 @@ class Bedtime(commands.Cog):
             time_in_tz = utc_now + datetime.timedelta(hours=user_bedtime["utc_offset"])
             bedtime = user_bedtime["bedtime"]
             morning = user_bedtime["morning"]
-            if Bedtime.check_if_between_times(bedtime, morning, time_in_tz):
-                if check_timer(self, "bedtime_" + str(message.author.id), runtime=60*60):
-                    log.info("%s has been told to go to bed!", message.author.name)
-                    await message.channel.send(
-                        embed=embedder(
-                            f"Hey {message.author.mention}, it's past your bedtime! Go to bed! 🛌💤", title="Bedtime!"
-                        )
+            if (
+                Bedtime.check_if_between_times(bedtime, morning, time_in_tz)
+                and not Bedtime.check_if_next_morning_is_weekend(morning, time_in_tz)
+                and check_timer(self, "bedtime_" + str(message.author.id), runtime=60 * 60)
+            ):
+                log.info("%s has been told to go to bed!", message.author.name)
+                await message.channel.send(
+                    embed=embedder(
+                        f"Hey {message.author.mention}, it's past your bedtime! Go to bed! 🛌💤", title="Bedtime!"
                     )
-                else:
-                    log.info("%s was up past his betdime but already warned recently", message.author)
+                )
 
     @commands.command(help="Set a bedtime, during which if the user posts, they'll be scolded.")
     async def set_bedtime(self, ctx, bedtime: int, morning: int, utc_offset: int):
@@ -120,6 +121,13 @@ class Bedtime(commands.Cog):
         if start < end:  # If 'morning' is not after midnight comapred to bedtime
             return start <= time_to_check.hour <= end
         return start <= time_to_check.hour or time_to_check.hour < end
+
+    @staticmethod
+    def check_if_next_morning_is_weekend(morning: int, relative_to_time: datetime.datetime):
+        if relative_to_time.hour < morning:  # Morning is today
+            return relative_to_time.weekday >= 5  # 5 is Saturday, 6 is Sunday
+        # Morning is tomorrow
+        return relative_to_time.weekday > 4  # If today is Friday (4), tomorrow morning is a weekend.
 
 
 def setup(bot):

@@ -104,7 +104,7 @@ class EmojiRoles(commands.Cog):
                 await payload.member.send(
                     embed=embedder(
                         title="Role Granted",
-                        description=f"{payload.member.name} has been granted the role {role_name}",
+                        description=f"You have been granted the role {role_name} on {self.bot.guild.name}.",
                     )
                 )
             else:
@@ -138,7 +138,7 @@ class EmojiRoles(commands.Cog):
                 await member.send(
                     embed=embedder(
                         title="Role Removed",
-                        description=f"{member.name} had the role `{role_name}` removed",
+                        description=f"You no longer have the `{role_name}` on {self.bot.guild.name}.",
                     )
                 )
 

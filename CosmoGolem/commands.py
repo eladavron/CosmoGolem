@@ -41,7 +41,7 @@ class Commands(commands.Cog):
     async def clear_logs(self, ctx):
         """ Clears the log files """
         try:
-            with open(LOG_PATH) as log_file:
+            with open(LOG_PATH, "w") as log_file:
                 log_file.write("\n=========\n")
             log.info("Log cleared!")
             await ctx.send("🤘")

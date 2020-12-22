@@ -37,6 +37,10 @@ class Eggs(commands.Cog):
                     get_channel_name(message.channel),
                 )
 
+        if re.search(r"^F$", message.content):
+            if check_timer(self, "F_" + str(message.channel.id), 60 * 15):
+                await message.channel.send(embed=embedder(description="F"))
+
 
 def setup(bot):
     """ Cog Definition """

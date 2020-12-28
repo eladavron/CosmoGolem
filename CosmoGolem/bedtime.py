@@ -119,7 +119,7 @@ class Bedtime(commands.Cog):
     def check_if_between_times(start: int, end: int, time_to_check: datetime.datetime):
         """ A utility function checking if a time is between two other times """
         if start < end:  # If 'morning' is not after midnight comapred to bedtime
-            return start <= time_to_check.hour <= end
+            return start <= time_to_check.hour < end
         return start <= time_to_check.hour or time_to_check.hour < end
 
     @staticmethod

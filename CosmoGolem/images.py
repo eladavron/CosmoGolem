@@ -6,6 +6,8 @@ import logging
 import emoji
 
 from imgurpython import ImgurClient
+from google_images_search import GoogleImagesSearch
+from random import randint
 
 from discord.ext import commands
 from _settings import Settings
@@ -17,6 +19,7 @@ log = logging.getLogger("Images")
 
 class Images(commands.Cog):
     """ A cog to handle all image commands """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -25,6 +28,12 @@ class Images(commands.Cog):
         """ Search a random image from imgur that matches the give query """
         await ctx.trigger_typing()
         await self.imgur_fetcher(ctx, query)
+
+    @commands.command(help="Followed by a search term, fetches a random image from Google Image Search.")
+    async def gimage(self, ctx, *, query):
+        """ Search a random image from imgur that matches the give query """
+        await ctx.trigger_typing()
+        await self.google_images_fetcher(ctx, query)
 
     @commands.command(help="Show a user's avatar in full.")
     async def avatar(self, ctx):
@@ -70,6 +79,28 @@ class Images(commands.Cog):
         else:
             await ctx.send(embed=embedder(f'"{query}" is not a recognized emoji.', error=True))
 
+    async def google_images_fetcher(self, ctx, query, name=None):
+        google_images_settings = Settings.static_settings.get("google_api")
+        if not all(x in google_images_settings for x in ["key", "cx"]):
+            await ctx.channel.send(
+                embed=embedder("Google API Key not set up correctly, can't show images!", error=True)
+            )
+            log.error("Google API Key not set up, can't show images!")
+        count = randint(0, 100)
+        _search_params = {
+            "q": query,
+            "num": count,
+            "safe": "high",
+            "imgType": "photo",
+            "imgSize": "MEDIUM",
+        }
+        gis = GoogleImagesSearch(google_images_settings["key"], google_images_settings["cx"], validate_images=False)
+        gis.search(search_params=_search_params)
+        image = gis.results()[count - 1]
+        embed = embedder(description=f"Here's a random image of \"{query}\":", url=image.url)
+        embed.set_image(url=image.url)
+        await ctx.send(embed=embed)
+
     async def imgur_fetcher(self, ctx, query, name=None):
         """ A utility function that fetches images from imgur and posts them """
         imgur_settings = Settings.static_settings.get("imgur")
@@ -80,7 +111,7 @@ class Images(commands.Cog):
         img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
         reult_list = img_client.gallery_search(query)
         if not reult_list:
-            await ctx.send(embed=embedder(f'Sorry, no results found for `{query}`'))
+            await ctx.send(embed=embedder(f"Sorry, no results found for `{query}`"))
             return
 
         selected_image = random.choice(reult_list)

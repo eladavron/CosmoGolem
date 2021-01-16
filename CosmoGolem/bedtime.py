@@ -3,7 +3,7 @@
 import logging
 import datetime
 from discord.ext import commands
-from _helpers import embedder, check_timer
+from ._helpers import embedder, check_timer, WEEKDAYS
 
 log = logging.getLogger("EmojiRoles")
 
@@ -134,9 +134,9 @@ class Bedtime(commands.Cog):
             bool: True if tomorrow morning is a weekend (Saturday or Sunday)
         """
         if relative_to_time.hour < morning:  # Morning is today
-            return relative_to_time.weekday() >= 5  # 5 is Saturday, 6 is Sunday
+            return relative_to_time.weekday() >= WEEKDAYS.index("Saturday")  # 5 is Saturday, 6 is Sunday
         # Morning is tomorrow
-        return relative_to_time.weekday() > 4  # If today is Friday (4), tomorrow morning is a weekend.
+        return relative_to_time.weekday() >= WEEKDAYS.index("Friday")  # If today is Friday (4), tomorrow morning is a weekend.
 
 
 def setup(bot):

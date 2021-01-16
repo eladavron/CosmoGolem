@@ -15,6 +15,8 @@ DATA_FOLDER = os.environ.get("CQXBOT_DATAPATH", os.path.join(os.getcwd(), "data"
 LOG_PATH = os.path.join(DATA_FOLDER, "cxqbot.log")
 SETTINGS_PATH = os.path.join(DATA_FOLDER, "settings.json")
 
+WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
 ### Enum Classes ###
 class Color(Enum):
     """ Predefined Colors """

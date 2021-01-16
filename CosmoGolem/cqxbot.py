@@ -12,7 +12,7 @@ from _helpers import LOG_PATH
 # Logging
 format_str = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
 formatter = logging.Formatter(format_str)
-logging.basicConfig(level=logging.DEBUG, format=format_str)
+logging.basicConfig(level=logging.INFO, format=format_str)
 handler = logging.FileHandler(LOG_PATH, encoding="utf-8", mode="a")
 handler.setFormatter(formatter)
 log = logging.getLogger()
@@ -24,6 +24,7 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         self.settings = Settings()
         self.debug = False
+        self.ready = False
         super().__init__(owner_ids=self.settings["owners"], **kwargs)
 
     @property

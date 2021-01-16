@@ -26,6 +26,7 @@ class Handlers(commands.Cog):
                 await ctx.send(embed=embedder("CosmoGolem is in Debug mode!", color=Color.YELLOW))
             else:
                 await ctx.send(embed=embedder("CosmoGolem is Online!", color=Color.GREEN))
+        self.bot.ready = True
         log.info("*** Client ready! ***")
 
     @commands.Cog.listener()

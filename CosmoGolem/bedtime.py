@@ -3,7 +3,7 @@
 import logging
 import datetime
 from discord.ext import commands
-from ._helpers import embedder, check_timer, WEEKDAYS
+from _helpers import embedder, check_timer, WEEKDAYS
 
 log = logging.getLogger("EmojiRoles")
 

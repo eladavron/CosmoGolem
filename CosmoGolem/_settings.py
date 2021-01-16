@@ -50,6 +50,11 @@ class Settings(dict):
             )
         self.update(loaded_settings)
 
+    def reload(self):
+        """ Forces the dictionary to relad """
+        with open(SETTINGS_PATH, "r") as settings_file:
+            loaded_settings = json.loads(settings_file.read())
+        self.update(loaded_settings)
 
     def increase_counter(self, counter: str, amount: int):
         """ Increase a counter in the settings by a given amount """

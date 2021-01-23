@@ -65,7 +65,7 @@ def embedder(description: str, color:Color=None, title:str=None, error=False, **
     return discord.Embed(title=title, description=description, colour=color.value, **kwargs)
 
 
-def check_timer(self, timer_name, runtime: int = 60 * 5):
+def check_timer(self, timer_name, runtime: int = 60 * 15):
     """
     Acts like a lock check.
     If the give timer name is not running (or finished)  returns True and starts the timer from 0.

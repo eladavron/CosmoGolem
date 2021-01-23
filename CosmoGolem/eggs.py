@@ -29,7 +29,7 @@ class Eggs(commands.Cog):
                     message.author.name,
                     get_channel_name(message.channel),
                 )
-                await message.channel.send(embed=embedder(description="F Bennu!"))
+                await message.channel.send(embed=embedder(description="Eff Bennu!"))
             else:
                 log.info(
                     "%s mentioned Bennu in %s but the easter egg was on timeout.",

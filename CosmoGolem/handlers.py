@@ -31,9 +31,7 @@ class Handlers(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         """ What happens when a bad command is invoked """
-        if re.match(
-            r"\.", ctx.invoked_with
-        ):  # If a double-dot (or more than one) was used, it'll be part of the "command"
+        if re.match(r"\d+.*", ctx.invoked_with):  # Started sentence with a price
             return
         log.error(
             "%s issued command but got an error: %s", ctx.message.author, str(error)

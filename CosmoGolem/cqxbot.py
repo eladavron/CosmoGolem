@@ -2,6 +2,7 @@
 CosmoGolem's main module
 """
 import logging
+from logging.handlers import RotatingFileHandler
 import argparse
 import traceback
 from tendo import singleton
@@ -10,10 +11,10 @@ from _settings import Settings
 from _helpers import LOG_PATH
 
 # Logging
-format_str = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
-formatter = logging.Formatter(format_str)
-logging.basicConfig(level=logging.INFO, format=format_str)
-handler = logging.FileHandler(LOG_PATH, encoding="utf-8", mode="a")
+format_string = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
+formatter = logging.Formatter(format_string)
+logging.basicConfig(level=logging.INFO, format=format_string)
+handler = RotatingFileHandler(LOG_PATH, encoding="utf-8", mode="a", maxBytes=1024 * 10)
 handler.setFormatter(formatter)
 log = logging.getLogger()
 log.addHandler(handler)

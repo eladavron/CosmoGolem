@@ -2,12 +2,7 @@
 A bot for the CosmoQuestX Discord Server.  
 ***Both the bot and this readme file are still under construciton!***
 
-## Running the Bot
-You will need one of these two to get started:
-* Docker
-* Python3.9 with `pip`
-
-### Docker
+## Docker (for deploying)
 The `Dockerfile` can be built like a regular docker file, using `docker build .`
 Howerver it is highly recommended to
 use `docker-compose`:
@@ -15,14 +10,21 @@ use `docker-compose`:
 * Install `docker-compose` using `pip install docker-compose`
 * Build and start the bot using `docker-compose up`
 
-### Python3.9
+## Python 3.9 for developing)
 * [Downlad and Install Python3.9](https://www.python.org/downloads/release/python-390/)  
   (Make sure you install pip as well)
-* Once installed, navigate to the root of the repository and type:  
+* (Optional) Set up an activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
+    * In any terminal window, type `python3.9 -m pip install venv`
+    * In the root directory of the repository (the same directory where this README.md file was found), type:  
+     `python3.9 -m venv .venv`
+    * Acticate the virtual evironment using:
+      * Linux/Max: `.venv/bin/activate`
+      * Windows: Either `.venv/Scripts/activate.ps1` in PowerShell or `.venv/Scripts/activate.bat` in CMD. Read more about virtual environments in the [official documentation]().
+* Navigate to the root of the repository and type:  
   `pip install -r requirements.txt`
 * Start the bot using `python CosmoGolem/cqxbot.py`
 
-### The Settings File
+## The Settings File
 You will have to edit the settings file in the `data` folder before you can actually use the bot.  
 
 You must fill in at least the following:
@@ -42,12 +44,8 @@ There's probably a better way to do this, but for now we do it manually.
 * **mod_role_id**: `int` - Found by typing `\@role_name` in Discord
 * **owners**: `list<int>` - List of user IDs for users considered `owners` (basically bot admins).
 
-### The Data Folder
+## The Data Folder
 The bot uses a folder called `data` to both store its logs to and read settings form.  
 By default, this is the folder `data` in the repository, which contains an empty settings file and will also be mounted by `docker-compose` as a volume so that its data will persist if you use docker locally.
 
-If you want to use a differnet folder, simply set that path in the `CQXBOT_DATAPATH` environment variable.  
-
-## Developing
-It's not recommended to develop IN Docker, instead - use a regular good 'ol localized installation of Python3.9.  
-Note that starting the bot will cause it to conenct to whatever it was invited to, so maybe keep a spare debug-only bot-token and use that for development.
+If you want to use a differnet folder, simply set that path in the `CQXBOT_DATAPATH` environment variable.

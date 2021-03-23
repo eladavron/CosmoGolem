@@ -81,7 +81,13 @@ class Commands(commands.Cog):
     async def info(self, ctx):
         """ Handles the "info" command """
         await ctx.trigger_typing()
-        await ctx.send(embed=embedder("Written in Python 3.9 by Ambious", title="CosmoGolem", color=Color.AQUA))
+        await ctx.send(
+            embed=embedder(
+                "Written in Python 3.9 by Ambious\nSource code available at: https://github.com/eladavron/CosmoGolem",
+                title="CosmoGolem",
+                color=Color.AQUA
+            )
+        )
 
     @commands.command(help="Archives a channel to a file then uploads to the where you request.")
     @commands.has_role(Settings.static_settings["mod_role_id"])

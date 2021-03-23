@@ -10,7 +10,7 @@ use `docker-compose`:
 * Install `docker-compose` using `pip install docker-compose`
 * Build and start the bot using `docker-compose up`
 
-## Python 3.9 for developing)
+## Python 3.9 (for developing)
 * [Downlad and Install Python3.9](https://www.python.org/downloads/release/python-390/)  
   (Make sure you install pip as well)
 * (Optional) Set up an activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html):

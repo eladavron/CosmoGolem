@@ -136,7 +136,8 @@ class Bedtime(commands.Cog):
         if relative_to_time.hour < morning:  # Morning is today
             return relative_to_time.weekday() >= WEEKDAYS.index("Saturday")  # 5 is Saturday, 6 is Sunday
         # Morning is tomorrow
-        return relative_to_time.weekday() >= WEEKDAYS.index("Friday")  # If today is Friday (4), tomorrow morning is a weekend.
+        # If today is Friday (4), tomorrow morning is a weekend.
+        return relative_to_time.weekday() >= WEEKDAYS.index("Friday")
 
 
 def setup(bot):

@@ -50,7 +50,6 @@ class Settings(dict):
             )
         self.update(loaded_settings)
 
-
     def increase_counter(self, counter: str, amount: int):
         """ Increase a counter in the settings by a given amount """
 

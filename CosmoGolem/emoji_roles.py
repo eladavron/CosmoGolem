@@ -10,6 +10,7 @@ from _helpers import embedder
 
 log = logging.getLogger("EmojiRoles")
 
+
 class EmojiRoles(commands.Cog):
     """ The handlers cog class """
 
@@ -32,7 +33,7 @@ class EmojiRoles(commands.Cog):
         role = None
         message = None
         for arg in args:
-            if emoji_id := self.resolve_emoji_id(arg):
+            if emoji_id := resolve_emoji_id(arg):
                 if not (emoji_id in server_emojis or arg in emoji.UNICODE_EMOJI):
                     log.error(
                         "%s tried binding a custom emoji from another server!",
@@ -116,7 +117,6 @@ class EmojiRoles(commands.Cog):
                     role_name,
                 )
 
-
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         """ If a reaction is added, checks if it's bount to that message and a role and removes it if so """
@@ -128,7 +128,7 @@ class EmojiRoles(commands.Cog):
             member = await self.bot.guild.fetch_member(payload.user_id)
             if role in member.roles:
                 log.info(
-                   "User %s has removed reaction %s from %s and the role %s will be removed from them.",
+                    "User %s has removed reaction %s from %s and the role %s will be removed from them.",
                     member.name,
                     str(payload.emoji),
                     payload.message_id,
@@ -142,7 +142,7 @@ class EmojiRoles(commands.Cog):
                     )
                 )
 
-    def resolve_emoji_id(self, query):
+    def resolve_emoji_id(query):
         """
         Resolve an emoji to either the Unicode set or a custom emoji in this server.
 

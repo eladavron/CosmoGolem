@@ -17,6 +17,7 @@ log = logging.getLogger("Images")
 
 class Images(commands.Cog):
     """ A cog to handle all image commands """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -80,7 +81,7 @@ class Images(commands.Cog):
         img_client = ImgurClient(imgur_settings["id"], imgur_settings["secret"])
         reult_list = img_client.gallery_search(query)
         if not reult_list:
-            await ctx.send(embed=embedder(f'Sorry, no results found for `{query}`'))
+            await ctx.send(embed=embedder(f"Sorry, no results found for `{query}`"))
             return
 
         selected_image = random.choice(reult_list)

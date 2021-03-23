@@ -41,7 +41,7 @@ class Handlers(commands.Cog):
                 embed=embedder(
                     f"Type `{self.bot.command_prefix}help` to see a list of available commands.",
                     title=str(error),
-                    error=True
+                    error=True,
                 )
             )
 
@@ -60,10 +60,11 @@ class Handlers(commands.Cog):
                 embed=embedder(
                     description=f"Error: ```{str(error)}```\nSee logs for more details.",
                     title="Unexpected error!",
-                    error=True
+                    error=True,
                 )
             )
             raise error
+
 
 def setup(bot):
     """ Cog init """

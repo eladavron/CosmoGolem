@@ -20,6 +20,7 @@ WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 ### Enum Classes ###
 class Color(Enum):
     """ Predefined Colors """
+
     RED = 0xFF0000
     NAVY = 0x000080
     AQUA = 0x00FFFF
@@ -45,7 +46,7 @@ def get_channel_name(channel):
     return "an unknown channel type"
 
 
-def embedder(description: str, color:Color=None, title:str=None, error=False, **kwargs):
+def embedder(description: str, color: Color = None, title: str = None, error=False, **kwargs):
     """Wraps the given message in an embed with the given color.
 
     Args:

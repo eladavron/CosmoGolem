@@ -11,9 +11,9 @@ from _settings import Settings
 from _helpers import LOG_PATH
 
 # Logging
-format_string = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
-formatter = logging.Formatter(format_string)
-logging.basicConfig(level=logging.INFO, format=format_string)
+LOGGING_FORMAT = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
+formatter = logging.Formatter(LOGGING_FORMAT)
+logging.basicConfig(level=logging.INFO, format=LOGGING_FORMAT)
 handler = RotatingFileHandler(LOG_PATH, encoding="utf-8", mode="a", maxBytes=1024 * 10)
 handler.setFormatter(formatter)
 log = logging.getLogger()
@@ -22,6 +22,7 @@ log.addHandler(handler)
 ### Global Variables ##
 class Bot(commands.Bot):
     """ An extension of the Bot command that also holds settings """
+
     def __init__(self, **kwargs):
         self.settings = Settings()
         self.debug = False
@@ -51,7 +52,7 @@ def startup(debug: bool):
     for extension in startup_extensions:
         try:
             bot.load_extension(extension)
-        except:
+        except Exception:
             log.error("Failed to load extension %s!\n%s", extension, traceback.format_exc())
 
     bot.debug = debug
@@ -73,7 +74,7 @@ async def load(ctx, module):
     """
     try:
         bot.load_extension(module)
-    except:
+    except Exception:
         log.error("Failed to load extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
@@ -91,7 +92,7 @@ async def unload(ctx, module):
     """
     try:
         bot.unload_extension(module)
-    except:
+    except Exception:
         log.error("Failed to unload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:
@@ -110,7 +111,7 @@ async def reload(ctx, module):
     try:
         bot.unload_extension(module)
         bot.load_extension(module)
-    except:
+    except Exception:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
     else:

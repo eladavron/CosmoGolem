@@ -8,3 +8,4 @@ services:
       - type: bind
         source: ./data
         target: /data
+    restart: always

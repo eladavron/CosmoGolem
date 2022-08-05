@@ -8,7 +8,7 @@ Howerver it is highly recommended to
 use `docker-compose`:
 * [Download and Install Docker](https://www.docker.com/get-started)
 * Install `docker-compose` using `pip install docker-compose`
-* Build and start the bot using `docker-compose up`
+* Build and start the bot using `docker-compose up & disown` (the `& disown` part disconnects it from your console so you disconnect and it'll remain running)
 
 ## Python 3.9 (for developing)
 * [Downlad and Install Python3.9](https://www.python.org/downloads/release/python-390/)  

@@ -1,5 +1,5 @@
+discord.py==2.3.2
 requests==2.31.0
 imgurpython==1.1.7
 emoji==0.6.0
 tendo==0.2.15
-discord.py==1.7.3

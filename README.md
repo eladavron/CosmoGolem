@@ -1,25 +1,28 @@
 # CosmoGolem
-A bot for the CosmoQuestX Discord Server.  
-***Both the bot and this readme file are still under construciton!***
+A bot for the CosmoQuestX Discord Server.
 
 ## Docker (for deploying)
 The `Dockerfile` can be built like a regular docker file, using `docker build .`
 Howerver it is highly recommended to
-use `docker-compose`:
+use `docker compose`:
 * [Download and Install Docker](https://www.docker.com/get-started)
-* Install `docker-compose` using `pip install docker-compose`
-* Build and start the bot using `docker-compose up & disown` (the `& disown` part disconnects it from your console so you disconnect and it'll remain running)
+* For ubuntu, first install docker-compose using `sudo apt update && sudo apg-get install docker-compose-plugin`  
+  Docker Desktop for Windows will have it pre-installed.
+* Navigate to the root of this repostory and run the bot using `docker compose up -d`  
+  (You can remove the `-d` to see the log output in the console, but once you close the console the bot will also close)
 
-## Python 3.9 (for developing)
-* [Downlad and Install Python3.9](https://www.python.org/downloads/release/python-390/)  
+## Python 3.10 (for developing)
+* [Downlad and Install Python3.10](https://www.python.org/downloads/release/python-3100/)  
   (Make sure you install pip as well)
-* (Optional) Set up an activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
-    * In any terminal window, type `python3.9 -m pip install venv`
-    * In the root directory of the repository (the same directory where this README.md file was found), type:  
-     `python3.9 -m venv .venv`
-    * Acticate the virtual evironment using:
-      * Linux/Max: `.venv/bin/activate`
-      * Windows: Either `.venv/Scripts/activate.ps1` in PowerShell or `.venv/Scripts/activate.bat` in CMD. Read more about virtual environments in the [official documentation]().
+* (Optional but recommended) Set up an activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
+    * For Ubuntu, first install venv using `sudo apt update && sudo apg-get install python3-venv`  
+      Windows Docker will already have it pre-installed.
+    * In any terminal window, type `python3 -m pip install venv`
+    * In the root directory of the repository (the same directory where this README.md file was found), type: `python3 -m venv .venv`
+    * Activate the virtual evironment using:
+      * Linux/Mac: `. .venv/bin/activate`
+      * Windows: Either `.venv/Scripts/activate.ps1` in PowerShell or `.venv/Scripts/activate.bat` in CMD.
+
 * Navigate to the root of the repository and type:  
   `pip install -r requirements.txt`
 * Start the bot using `python CosmoGolem/cqxbot.py`
@@ -38,10 +41,10 @@ You must fill in at least the following:
 ```
 
 * **bot_token**: `string` - Your Bot Token (found at the [Discord Developers' dashboard](https://discord.com/developers/applications))
-* **server_id**: `int` - Found in the server's settings under `Widget`.  
-This doesn't determined where the bot is connected to (that is determined by the bot-token), but rather teaches the bot what server it's in.  
+* **server_id**: `int` - To obtain, with **Developer Mode** active (Settings -> Advanced), right-click the server and select **Copy ID**.  
+  > This doesn't determined where the bot is connected to (that is determined by the bot-token), but rather teaches the bot what server it's in.  
 There's probably a better way to do this, but for now we do it manually.
-* **mod_role_id**: `int` - Found by typing `\@role_name` in Discord
+* **mod_role_id**: `int` - To obtain, with **Developer Mode** active (Settings -> Advanced), go to **Server Settings** -> **Roles**, click the `...` button nex to the relevant role, and **Copy ID**.
 * **owners**: `list<int>` - List of user IDs for users considered `owners` (basically bot admins).
 
 ## The Data Folder

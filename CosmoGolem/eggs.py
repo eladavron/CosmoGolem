@@ -42,6 +42,6 @@ class Eggs(commands.Cog):
                 await message.channel.send(embed=embedder(description="F"))
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog Definition """
-    bot.add_cog(Eggs(bot))
+    await bot.add_cog(Eggs(bot))

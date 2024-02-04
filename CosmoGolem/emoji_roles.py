@@ -26,7 +26,7 @@ class EmojiRoles(commands.Cog):
         Args:
             A role name, a message ID, and an emoji - in no particular order.
         """
-        await ctx.trigger_typing()
+        await ctx.typing()
         server_roles = [x.name for x in self.bot.get_guild(self.bot.settings["server_id"]).roles]
         server_emojis = [x.id for x in self.bot.get_guild(self.bot.settings["server_id"]).emojis]
         emoji_string = None
@@ -177,6 +177,6 @@ class EmojiRoles(commands.Cog):
         return None
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog Init """
-    bot.add_cog(EmojiRoles(bot))
+    await bot.add_cog(EmojiRoles(bot))

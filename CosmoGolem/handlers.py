@@ -66,6 +66,6 @@ class Handlers(commands.Cog):
             raise error
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog init """
-    bot.add_cog(Handlers(bot))
+    await bot.add_cog(Handlers(bot))

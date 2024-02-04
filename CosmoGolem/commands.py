@@ -1,6 +1,7 @@
 """ Generic Bot Commands """
 
 import io
+import sys
 import logging
 
 import discord
@@ -24,16 +25,16 @@ class Commands(commands.Cog):
     async def exit(self, ctx):
         """ Quits the bot """
         log.info("Quitting!")
-        await ctx.trigger_typing()
+        await ctx.typing()
         await ctx.send(embed=embedder(description="Quitting, goodbye!"))
-        await self.bot.logout()
+        await self.bot.close()
 
     @commands.command()
     @commands.is_owner()
     async def logs(self, ctx):
         """ Sends the log files to the user. TODO: Cycle logs? Send only recent? """
         await ctx.send(embed=embedder("Sending logs..."))
-        await ctx.trigger_typing()
+        await ctx.typing()
         await ctx.message.author.send(file=discord.File(LOG_PATH))
 
     @commands.command()
@@ -80,10 +81,11 @@ class Commands(commands.Cog):
     @commands.command(help="Gives generic details about the bot.")
     async def info(self, ctx):
         """ Handles the "info" command """
-        await ctx.trigger_typing()
+        await ctx.typing()
         await ctx.send(
             embed=embedder(
-                "Written in Python 3.9 by Ambious\nSource code available at: https://github.com/eladavron/CosmoGolem",
+                f"Written in Python {sys.version_info.major}.{sys.version_info.minor} by Ambious"
+                "\nSource code available at: https://github.com/eladavron/CosmoGolem",
                 title="CosmoGolem",
                 color=Color.AQUA
             )
@@ -120,6 +122,6 @@ class Commands(commands.Cog):
         await archive_server(where_to_upload)
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog Init """
-    bot.add_cog(Commands(bot))
+    await bot.add_cog(Commands(bot))

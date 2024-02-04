@@ -45,7 +45,7 @@ class Bedtime(commands.Cog):
             morning (int): The time (in hours, 0-23) until which the user will be scolded
             utc_offset (int): The time (in hours, -12-12) offset of the user from UTC
         """
-        await ctx.trigger_typing()
+        await ctx.typing()
         if not -12 <= utc_offset <= 12:
             await ctx.send(embed=embedder("UTC offset must bet between -12 and +12!", error=True))
             log.info("%s tried to set a UTC Offset of %s for their bedtime", ctx.message.author.name, str(utc_offset))
@@ -73,7 +73,7 @@ class Bedtime(commands.Cog):
     @commands.command(help="Gets the user bedtime")
     async def get_bedtime(self, ctx):
         """ Retrieve a user's bedtime """
-        await ctx.trigger_typing()
+        await ctx.typing()
         if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             utc_offset = user_bedtime["utc_offset"]
             await ctx.send(
@@ -106,7 +106,7 @@ class Bedtime(commands.Cog):
     @commands.command(help="Removes the user's bedtime")
     async def remove_bedtime(self, ctx):
         """ Remove a user's bedtime """
-        await ctx.trigger_typing()
+        await ctx.typing()
         if self.bot.settings.get("bedtime", {}).get(str(ctx.message.author.id)):
             del self.bot.settings["bedtime"][str(ctx.message.author.id)]
             self.bot.settings.save()
@@ -140,6 +140,6 @@ class Bedtime(commands.Cog):
         return relative_to_time.weekday() >= WEEKDAYS.index("Friday")
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog Init """
-    bot.add_cog(Bedtime(bot))
+    await bot.add_cog(Bedtime(bot))

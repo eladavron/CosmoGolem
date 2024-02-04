@@ -22,6 +22,7 @@ class Settings(dict):
                 {
                     "bot_token": None,
                     "server_id": None,
+                    "command_prefix": None,
                     "mod_role_id": None,
                     "imgur": {
                         "id": None,
@@ -42,7 +43,7 @@ class Settings(dict):
         with open(SETTINGS_PATH, "r") as settings_file:
             loaded_settings = json.loads(settings_file.read())
 
-        required_settings = ["bot_token", "server_id", "mod_role_id", "owners"]
+        required_settings = ["bot_token", "server_id", "mod_role_id", "owners", "command_prefix"]
         if not all(bool(loaded_settings.get(x)) for x in required_settings):
             raise SettingMissing(
                 "A required setting is missing from your settings file! The required fields are: "

@@ -24,7 +24,7 @@ class Images(commands.Cog):
     @commands.command(help="Followed by a search term, fetches a random image from Imgur.")
     async def image(self, ctx, *, query):
         """ Search a random image from imgur that matches the give query """
-        await ctx.trigger_typing()
+        await ctx.typing()
         await self.imgur_fetcher(ctx, query)
 
     @commands.command(help="Show a user's avatar in full.")
@@ -47,19 +47,19 @@ class Images(commands.Cog):
     @commands.command(help="Show a random catto.", aliases=["cat", "catto", "kitty"])
     async def meow(self, ctx):
         """ Show a random cat """
-        await ctx.trigger_typing()
+        await ctx.typing()
         await self.imgur_fetcher(ctx, query="cat", name="catto")
 
     @commands.command(help="Show a random doggo.", aliases=["dog", "doggo", "doggy", "puppy", "pupper", "pup"])
     async def woof(self, ctx):
         """ Show a random dog """
-        await ctx.trigger_typing()
+        await ctx.typing()
         await self.imgur_fetcher(ctx, query="dog", name="doggo")
 
     @commands.command(help="Make an emoji bigger.")
     async def embiggen(self, ctx, query):
         """ Embiggen an emoji """
-        await ctx.trigger_typing()
+        await ctx.typing()
         if query in emoji.UNICODE_EMOJI:
             string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
             code = re.match(r"U0+(\S+)", string).group(1)
@@ -112,6 +112,6 @@ class Images(commands.Cog):
         await ctx.send(embed=embed)
 
 
-def setup(bot):
+async def setup(bot):
     """ Cog init """
-    bot.add_cog(Images(bot))
+    await bot.add_cog(Images(bot))

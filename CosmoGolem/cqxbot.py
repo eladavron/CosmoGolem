@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 import argparse
 import traceback
 from tendo import singleton
+from discord import Intents
 from discord.ext import commands
 from _settings import Settings
 from _helpers import LOG_PATH
@@ -26,44 +27,34 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         self.settings = Settings()
         self.debug = False
-        super().__init__(owner_ids=self.settings["owners"], **kwargs)
+        super().__init__(owner_ids=self.settings["owners"], command_prefix=self.settings["command_prefix"], **kwargs)
+
+    async def setup_hook(self):
+        startup_extensions = [
+            "handlers",
+            "commands",
+            "eggs",
+            "images",
+            "emoji_roles",
+            "bedtime",
+        ]
+
+        for extension in startup_extensions:
+            try:
+                await bot.load_extension(extension)
+                log.debug("Loaded extension: %s", extension)
+                bot.command_prefix = self.settings.get("command_prefix")
+            except Exception:
+                log.error("Failed to load extension %s!\n%s", extension, traceback.format_exc())
 
     @property
     def guild(self):
         """ A shortcut for getting Guild ID """
         return self.get_guild(self.settings["server_id"])
+intents = Intents.default()
+intents.message_content = True
+bot = Bot(description="CosmoGolem 1.1", intents=intents ,pm_help=True)
 
-
-bot = Bot(command_prefix="$", description="CosmoGolem 1.0", pm_help=True)
-
-
-def startup(debug: bool):
-    """
-    Startup function
-    """
-    startup_extensions = [
-        "handlers",
-        "commands",
-        "eggs",
-        "images",
-        "emoji_roles",
-        "bedtime",
-    ]
-    for extension in startup_extensions:
-        try:
-            bot.load_extension(extension)
-        except Exception:
-            log.error("Failed to load extension %s!\n%s", extension, traceback.format_exc())
-
-    bot.debug = debug
-    bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down
-
-    # Here the bot is shutting down
-    bot.loop.close()
-    log.info("Done. Goodbye!")
-
-
-### General Commands ###
 @bot.command(hidden=True)
 @commands.is_owner()
 async def load(ctx, module):
@@ -102,15 +93,15 @@ async def unload(ctx, module):
 
 @bot.command(hidden=True)
 @commands.is_owner()
-async def reload(ctx, module):
+async def reload(ctx: commands.Context, module):
     """Reloads a module
 
     Args:
         module (str): Name of module to reload.
     """
     try:
-        bot.unload_extension(module)
-        bot.load_extension(module)
+        ctx.bot.unload_extension(module)
+        ctx.bot.load_extension(module)
     except Exception:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
@@ -125,4 +116,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     singleton.SingleInstance()
-    startup(args.debug)
+    bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down

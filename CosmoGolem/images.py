@@ -31,7 +31,7 @@ class Images(commands.Cog):
     async def avatar(self, ctx):
         """ Show a user's avatar """
         for member in ctx.message.mentions:
-            url = str(member.avatar_url)
+            url = str(member.display_avatar.url)
             embed = embedder(
                 description="",
                 title="Here's %s%s avatar:"
@@ -60,10 +60,8 @@ class Images(commands.Cog):
     async def embiggen(self, ctx, query):
         """ Embiggen an emoji """
         await ctx.typing()
-        if query in emoji.UNICODE_EMOJI:
-            string = query.encode("unicode-escape").decode("utf-8").replace("\\", "")
-            code = re.match(r"U0+(\S+)", string).group(1)
-            path = f"https://twemoji.maxcdn.com/v/latest/72x72/{code}.png"
+        if emoji.is_emoji(query) :
+            path = f"https://twemoji.maxcdn.com/v/latest/72x72/{ord(query):x}.png"
             await save_file_and_send(ctx, path)
         elif re.match(r"^\<\:(\S+)\:(\d+)\>$", query):
             emoji_id = re.match(r"^\<\:(\S+)\:(\d+)\>$", query).group(2)

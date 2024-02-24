@@ -116,4 +116,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     singleton.SingleInstance()
+    bot.debug = args.debug
     bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down

@@ -1,12 +1,12 @@
 """ All image related commands """
 
-import re
 import random
 import logging
 import emoji
 
 from imgurpython import ImgurClient
 
+from discord import PartialEmoji
 from discord.ext import commands
 from _settings import Settings
 from _helpers import Color, embedder, save_file_and_send
@@ -63,9 +63,8 @@ class Images(commands.Cog):
         if emoji.is_emoji(query) :
             path = f"https://twemoji.maxcdn.com/v/latest/72x72/{ord(query):x}.png"
             await save_file_and_send(ctx, path)
-        elif re.match(r"^\<\:(\S+)\:(\d+)\>$", query):
-            emoji_id = re.match(r"^\<\:(\S+)\:(\d+)\>$", query).group(2)
-            await save_file_and_send(ctx, f"https://cdn.discordapp.com/emojis/{emoji_id}.png")
+        elif url := PartialEmoji.from_str(query).url:
+            await save_file_and_send(ctx, url)
         else:
             await ctx.send(embed=embedder(f'"{query}" is not a recognized emoji.', error=True))
 

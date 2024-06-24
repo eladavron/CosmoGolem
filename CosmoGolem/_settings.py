@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import logging
+from datetime import datetime, timezone
 from _helpers import SETTINGS_PATH
 
 log = logging.getLogger("Settings")
@@ -85,6 +86,7 @@ class Settings(dict):
     def save(self):
         """ Saves the current state of Settings to a file """
         with open(SETTINGS_PATH, "w") as settings_file:
+            self.update({"timestamp": datetime.now(timezone.utc).isoformat()})
             settings_file.write(json.dumps(self, indent=4))
 
 

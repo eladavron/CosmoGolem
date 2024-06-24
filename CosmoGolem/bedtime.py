@@ -1,7 +1,9 @@
 """ Emoji Roles functionality """
 
+import pytz
 import logging
-import datetime
+from dateutil.tz import gettz
+from datetime import datetime, timezone as tzone, timedelta
 from discord.ext import commands
 from _helpers import embedder, check_timer, WEEKDAYS
 
@@ -19,8 +21,8 @@ class Bedtime(commands.Cog):
     async def on_message(self, message):
         """ Checks incoming messages to see if their authors should be in bed """
         if user_bedtime := self.bot.settings.get("bedtime", {}).get(str(message.author.id)):
-            utc_now = datetime.datetime.utcnow()
-            time_in_tz = utc_now + datetime.timedelta(hours=user_bedtime["utc_offset"])
+            utc_now = datetime.now(tzone.utc)
+            time_in_tz = utc_now + timedelta(hours=user_bedtime["utc_offset"])
             bedtime = user_bedtime["bedtime"]
             morning = user_bedtime["morning"]
             if (
@@ -35,21 +37,51 @@ class Bedtime(commands.Cog):
                     )
                 )
 
+    def _parse_timezone(_, timezone):
+        try:
+            return pytz.timezone(timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            return gettz(timezone)
+
+    @commands.command(help="Check the time in a specific timezone")
+    async def time(self, ctx, timezone: str):
+        """ Check the time in a specific timezone
+
+        Args:
+            timezone (str): The timezone to check the time in (e.g. Europe/London).
+        """
+        await ctx.typing()
+        if not (tz := self._parse_timezone(timezone)):
+            await ctx.send(embed=embedder(f"Invalid timezone ({timezone})", error=True))
+            return
+        time = datetime.now(tz)
+        await ctx.send(embed=embedder(f"The time in {timezone} is {time.strftime('%H:%M')}"))
+
+    @commands.command(help="Get a list of all available timezones.")
+    async def get_timezones(self, ctx, filter: None):
+        """ Get a list of all available timezones
+
+        Args:
+            filter (str): A string to filter the timezones by.
+        """
+        await ctx.typing()
+        timezones = pytz.all_timezones
+        if filter:
+            timezones = [tz for tz in timezones if filter.lower() in tz.lower()]
+        await ctx.send(embed=embedder("\n".join(timezones)))
+
     @commands.command(help="Set a bedtime, during which if the user posts, they'll be scolded.")
-    async def set_bedtime(self, ctx, bedtime: int, morning: int, utc_offset: int):
+    async def set_bedtime(self, ctx, bedtime: int, morning: int, timezone: str):
         """Sets a bedtime for the requesting user
 
         Args:
             ctx (context): The context of the commnad
             bedtime (int): The time (in hours, 0-23) from which the user will be scolded
             morning (int): The time (in hours, 0-23) until which the user will be scolded
-            utc_offset (int): The time (in hours, -12-12) offset of the user from UTC
+            timezone (str): Name of your timezone.
         """
         await ctx.typing()
-        if not -12 <= utc_offset <= 12:
-            await ctx.send(embed=embedder("UTC offset must bet between -12 and +12!", error=True))
-            log.info("%s tried to set a UTC Offset of %s for their bedtime", ctx.message.author.name, str(utc_offset))
-            return
+        tz = pytz.timezone(timezone)
         if not 0 <= bedtime <= 23:
             log.info("%s tried to set bedtime %s", ctx.message.author.name, str(bedtime))
             await ctx.send(embed=embedder("Bedtime and morning must be integers between 0 and 23", error=True))
@@ -62,7 +94,7 @@ class Bedtime(commands.Cog):
             log.info("%s tried to set morning equal to bedtime", ctx.message.author.name)
             await ctx.send(embed=embedder("Bedtime and morning must be different!", error=True))
             return
-        user_bedtime = {"utc_offset": utc_offset, "bedtime": bedtime, "morning": morning}
+        user_bedtime = {"utc_offset": tz.tzname, "bedtime": bedtime, "morning": morning}
         log.info("Settings bedtime for %s (%s): %s", ctx.message.author.name, str(ctx.message.author.id), user_bedtime)
         if not self.bot.settings.get("bedtime"):
             self.bot.settings["bedtime"] = {}
@@ -116,19 +148,19 @@ class Bedtime(commands.Cog):
             await ctx.send(embed=embedder(f"{ctx.message.author.mention} does not have a bedtime set."))
 
     @staticmethod
-    def check_if_between_times(start: int, end: int, time_to_check: datetime.datetime):
+    def check_if_between_times(start: int, end: int, time_to_check: datetime):
         """ A utility function checking if a time is between two other times """
         if start < end:  # If 'morning' is not after midnight comapred to bedtime
             return start <= time_to_check.hour < end
         return start <= time_to_check.hour or time_to_check.hour < end
 
     @staticmethod
-    def check_if_next_morning_is_weekend(morning: int, relative_to_time: datetime.datetime):
+    def check_if_next_morning_is_weekend(morning: int, relative_to_time: datetime):
         """Checks if tomorrow morning is a weekend
 
         Args:
             morning (int): The morning as defined by the user
-            relative_to_time (datetime.datetime): The time to check (preferably current time in user's tz)
+            relative_to_time (datetime): The time to check (preferably current time in user's tz)
 
         Returns:
             bool: True if tomorrow morning is a weekend (Saturday or Sunday)

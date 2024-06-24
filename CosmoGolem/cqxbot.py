@@ -100,8 +100,8 @@ async def reload(ctx: commands.Context, module):
         module (str): Name of module to reload.
     """
     try:
-        ctx.bot.unload_extension(module)
-        ctx.bot.load_extension(module)
+        await ctx.bot.unload_extension(module)
+        await ctx.bot.load_extension(module)
     except Exception:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")

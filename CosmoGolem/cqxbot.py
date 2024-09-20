@@ -37,6 +37,7 @@ class Bot(commands.Bot):
             "images",
             "emoji_roles",
             "bedtime",
+            "trusty",
         ]
 
         for extension in startup_extensions:
@@ -53,7 +54,7 @@ class Bot(commands.Bot):
         return self.get_guild(self.settings["server_id"])
 intents = Intents.default()
 intents.message_content = True
-bot = Bot(description="CosmoGolem 1.1", intents=intents ,pm_help=True)
+bot = Bot(description="CosmoGolem 1.2", intents=intents ,pm_help=True)
 
 @bot.command(hidden=True)
 @commands.is_owner()
@@ -64,7 +65,7 @@ async def load(ctx, module):
         module (str): The name of the module to load.
     """
     try:
-        bot.load_extension(module)
+        await bot.load_extension(module)
     except Exception:
         log.error("Failed to load extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
@@ -82,7 +83,7 @@ async def unload(ctx, module):
         module (str): The name of the module to unload.
     """
     try:
-        bot.unload_extension(module)
+        await bot.unload_extension(module)
     except Exception:
         log.error("Failed to unload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")
@@ -100,8 +101,8 @@ async def reload(ctx: commands.Context, module):
         module (str): Name of module to reload.
     """
     try:
-        ctx.bot.unload_extension(module)
-        ctx.bot.load_extension(module)
+        await ctx.bot.unload_extension(module)
+        await ctx.bot.load_extension(module)
     except Exception:
         log.error("Failed to reload extension %s\n%s", module, traceback.format_exc())
         await ctx.send(f"```py\n{traceback.format_exc()}\n```")

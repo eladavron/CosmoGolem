@@ -33,6 +33,7 @@ class Settings(dict):
                     "users": {},
                     "channels": {},
                     "bedtime": {},
+                    "trusty": {},
                 }
             )
             self.save()

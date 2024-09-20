@@ -47,6 +47,30 @@ There's probably a better way to do this, but for now we do it manually.
 * **mod_role_id**: `int` - To obtain, with **Developer Mode** active (Settings -> Advanced), go to **Server Settings** -> **Roles**, click the `...` button nex to the relevant role, and **Copy ID**.
 * **owners**: `list<int>` - List of user IDs for users considered `owners` (basically bot admins).
 
+### Optional Settings
+You can set the trustworthiness of various sites under the `trustwothiness` key.
+Each entry should look like this:
+```json
+<pattern>: {
+  "trust": double, //Trust level between 0 and 1.
+  "message": string, //The message to display when the pattern is detected in a URL.
+}
+```
+The trust levels are:
+* `< 0.5`: Untrustworthy
+* `< 0.75`: Questionable
+* `>= 0.75`: Trustworthy
+
+For example:
+```json
+"arxiv.org": {
+    "trust": 0.7,
+    "message": "arxiv.org might contain pre-published articles which may not have been propertly peer reviewed."
+}
+```
+
+> 💡 In a future version this will be managed by commands rather than manual editing.
+
 ## The Data Folder
 The bot uses a folder called `data` to both store its logs to and read settings form.  
 By default, this is the folder `data` in the repository, which contains an empty settings file and will also be mounted by `docker-compose` as a volume so that its data will persist if you use docker locally.

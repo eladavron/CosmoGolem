@@ -21,6 +21,8 @@ log = logging.getLogger()
 log.addHandler(handler)
 
 ### Global Variables ##
+VERSION = "1.2.1"
+
 class Bot(commands.Bot):
     """ An extension of the Bot command that also holds settings """
 
@@ -52,9 +54,10 @@ class Bot(commands.Bot):
     def guild(self):
         """ A shortcut for getting Guild ID """
         return self.get_guild(self.settings["server_id"])
+
 intents = Intents.default()
 intents.message_content = True
-bot = Bot(description="CosmoGolem 1.2", intents=intents ,pm_help=True)
+bot = Bot(description=f"CosmoGolem {VERSION}", intents=intents ,pm_help=True)
 
 @bot.command(hidden=True)
 @commands.is_owner()

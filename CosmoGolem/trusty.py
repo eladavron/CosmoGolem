@@ -12,7 +12,7 @@ log = logging.getLogger("Trusty")
 
 
 class Trusty(commands.Cog):
-    """ The Trustworthiness module class """
+    """The Trustworthiness module class"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -23,12 +23,16 @@ class Trusty(commands.Cog):
         Trustworthiness of links to be evaluated upon "on_message"
         """
         # Regular expression to find URLs in the message
-        url_pattern = re.compile(r'https?://\S+|www\.\S+')
+        url_pattern = re.compile(r"https?://\S+|www\.\S+")
 
         # Check if the message contains a URL
         if url_pattern.search(message.content):
             for pattern, trust_settings in self.bot.settings["trustworthiness"].items():
-                if re.search(rf'https?://\S*{re.escape(pattern)}\S*', message.content, re.IGNORECASE):
+                aliases = [pattern, *trust_settings.get("aliases", [])]
+                if any(
+                    re.search(rf"https?://\S*{re.escape(alias)}\S*", message.content, re.IGNORECASE)
+                    for alias in aliases
+                ):
                     if trust_settings["trust"] < 0.5:
                         color = Color.RED
                         title = "Trustworthiness Alert"
@@ -46,8 +50,9 @@ class Trusty(commands.Cog):
                         )
                     )
 
-    #TODO: Add commands to add, edit, and remove trustworthiness settings
+    # TODO: Add commands to add, edit, and remove trustworthiness settings
+
 
 async def setup(bot):
-    """ Cog Definition """
+    """Cog Definition"""
     await bot.add_cog(Trusty(bot))

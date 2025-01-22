@@ -11,12 +11,12 @@ use `docker compose`:
 * Navigate to the root of this repostory and run the bot using `docker compose up -d`  
   (You can remove the `-d` to see the log output in the console, but once you close the console the bot will also close)
 
-## Python 3.10 (for developing)
-* [Downlad and Install Python3.10](https://www.python.org/downloads/release/python-3100/)  
+## Python 3.12 (for developing)
+* [Downlad and Install Python3.12](https://www.python.org/downloads/release/python-3128/)  
   (Make sure you install pip as well)
 * (Optional but recommended) Set up an activate a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
     * For Ubuntu, first install venv using `sudo apt update && sudo apg-get install python3-venv`  
-      Windows Docker will already have it pre-installed.
+      Windows will already have it installed with Python.
     * In any terminal window, type `python3 -m pip install venv`
     * In the root directory of the repository (the same directory where this README.md file was found), type: `python3 -m venv .venv`
     * Activate the virtual evironment using:
@@ -48,11 +48,12 @@ There's probably a better way to do this, but for now we do it manually.
 * **owners**: `list<int>` - List of user IDs for users considered `owners` (basically bot admins).
 
 ### Optional Settings
-You can set the trustworthiness of various sites under the `trustwothiness` key.
+You can set the trustworthiness of various sites under the `trustwothiness` key.  
 Each entry should look like this:
-```json
+```jsonc
 <pattern>: {
   "trust": double, //Trust level between 0 and 1.
+  "aliases": List[string], //An optional list of other strings to use as patterns for this rule.
   "message": string, //The message to display when the pattern is detected in a URL.
 }
 ```

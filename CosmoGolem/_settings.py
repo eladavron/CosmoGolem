@@ -31,7 +31,10 @@ class Settings(dict):
                     },
                     "owners": [],
                     "users": {},
-                    "channels": {},
+                    "channels": {
+                        "bot_commands": -1,
+                        "trusted_channels": [],  # List of channel IDs to skip trustworthiness checks
+                    },
                     "bedtime": {},
                     "trusty": {},
                 }

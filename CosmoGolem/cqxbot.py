@@ -14,7 +14,7 @@ from _helpers import LOG_PATH
 # Logging
 LOGGING_FORMAT = "%(asctime)s [%(levelname)s][%(name)s] %(message)s"
 formatter = logging.Formatter(LOGGING_FORMAT)
-logging.basicConfig(level=logging.INFO, format=LOGGING_FORMAT)
+logging.basicConfig(format=LOGGING_FORMAT)
 handler = RotatingFileHandler(LOG_PATH, encoding="utf-8", mode="a", maxBytes=1024 * 10)
 handler.setFormatter(formatter)
 log = logging.getLogger()
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-
+    log.setLevel(logging.DEBUG if args.debug else logging.INFO)
     singleton.SingleInstance()
     bot.debug = args.debug
     bot.run(bot.settings.get("bot_token"))  # This halts until the bot shuts down

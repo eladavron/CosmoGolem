@@ -23,6 +23,9 @@ class Trusty(commands.Cog):
         Trustworthiness of links to be evaluated upon "on_message"
         """
         # Regular expression to find URLs in the message
+        if message.channel.id in self.bot.settings.get("channels", {}).get("trusted_channels", []):
+            log.debug("Skipping trustworthiness check in trusted channel %s", message.channel)
+            return
         url_pattern = re.compile(r"https?://\S+|www\.\S+")
 
         # Check if the message contains a URL

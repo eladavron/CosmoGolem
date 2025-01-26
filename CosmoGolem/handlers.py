@@ -19,9 +19,8 @@ class Handlers(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         """ What happens when the bot is ready """
-        bot_commands = self.bot.settings.get("channels", {}).get("bot_commands")
-        if bot_commands:
-            ctx = self.bot.guild.get_channel(bot_commands)
+        if (bot_commands_channel := self.bot.settings.get("channels", {}).get("bot_commands")):
+            ctx = self.bot.guild.get_channel(bot_commands_channel)
             if self.bot.debug:
                 await ctx.send(embed=embedder("CosmoGolem is in Debug mode!", color=Color.YELLOW))
             else:

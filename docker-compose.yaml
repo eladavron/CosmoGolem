@@ -1,9 +1,10 @@
-version: "3.8"
 services:
   bot:
     build:
       context: .
       dockerfile: Dockerfile
+    # Match the host user so files written to ./data stay editable
+    user: "1001:1001"
     volumes:
       - type: bind
         source: ./data

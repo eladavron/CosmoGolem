@@ -19,9 +19,11 @@ handler = RotatingFileHandler(LOG_PATH, encoding="utf-8", mode="a", maxBytes=102
 handler.setFormatter(formatter)
 log = logging.getLogger()
 log.addHandler(handler)
+for noisy_logger in ("discord.gateway", "discord.client"):
+    logging.getLogger(noisy_logger).setLevel(logging.WARNING)
 
 ### Global Variables ##
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 
 class Bot(commands.Bot):
     """ An extension of the Bot command that also holds settings """

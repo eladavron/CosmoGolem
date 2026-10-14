@@ -30,7 +30,8 @@ use `docker compose`:
 ## The Settings File
 On first run, the bot copies [data/settings.template.json](data/settings.template.json) to `settings.json` in the data folder and exits.  
 You will have to edit that `settings.json` file before you can actually use the bot.  
-`settings.json` is git-ignored; to change the defaults for new installs, edit the template instead.
+`settings.json` is git-ignored; to change the defaults for new installs, edit the template instead.  
+On every startup, any fields present in the template but missing from `settings.json` (including nested ones) are added with their template defaults. Existing values are never overwritten.
 
 You must fill in at least the following:
 ```json

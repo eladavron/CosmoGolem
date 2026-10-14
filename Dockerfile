@@ -4,7 +4,7 @@ WORKDIR /
 
 COPY requirements.txt ./
 COPY CosmoGolem app
-COPY data data
+COPY data/settings.template.json data/
 
 VOLUME [ "/data" ]
 

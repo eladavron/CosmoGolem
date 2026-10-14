@@ -1,6 +1,7 @@
 {
     "bot_token": "",
     "server_id": 0,
+    "command_prefix": "!",
     "mod_role_id": 0,
     "imgur": {
         "id": "",
@@ -8,11 +9,15 @@
     },
     "owners": [],
     "users": {},
-    "channels": {},
+    "channels": {
+        "bot_commands": -1,
+        "trusted_channels": []
+    },
     "counters": {
         "doggo": 0,
         "catto": 0
     },
     "emoji_roles": {},
-    "bedtime": {}
+    "bedtime": {},
+    "trusty": {}
 }

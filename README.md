@@ -28,7 +28,9 @@ use `docker compose`:
 * Start the bot using `python CosmoGolem/cqxbot.py`
 
 ## The Settings File
-You will have to edit the settings file in the `data` folder before you can actually use the bot.  
+On first run, the bot copies [data/settings.template.json](data/settings.template.json) to `settings.json` in the data folder and exits.  
+You will have to edit that `settings.json` file before you can actually use the bot.  
+`settings.json` is git-ignored; to change the defaults for new installs, edit the template instead.
 
 You must fill in at least the following:
 ```json
@@ -36,6 +38,7 @@ You must fill in at least the following:
     "bot_token": "BOT_TOKEN",
     "server_id": 1234567890,
     "mod_role_id": 1234567890,
+    "command_prefix": "!",
     "owners": [ 9876543210 ]
 }
 ```
@@ -74,6 +77,6 @@ For example:
 
 ## The Data Folder
 The bot uses a folder called `data` to both store its logs to and read settings form.  
-By default, this is the folder `data` in the repository, which contains an empty settings file and will also be mounted by `docker-compose` as a volume so that its data will persist if you use docker locally.
+By default, this is the folder `data` in the repository, which contains the settings template and will also be mounted by `docker-compose` as a volume so that its data will persist if you use docker locally.
 
 If you want to use a differnet folder, simply set that path in the `CQXBOT_DATAPATH` environment variable.

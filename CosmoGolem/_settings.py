@@ -3,11 +3,24 @@
 import os
 import sys
 import json
+import shutil
 import logging
 from datetime import datetime, timezone
 from _helpers import SETTINGS_PATH
 
 log = logging.getLogger("Settings")
+
+# Resolved relative to the code, not DATA_FOLDER, so it's found even when CQXBOT_DATAPATH is customized.
+TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "settings.template.json")
+
+if not os.path.isfile(SETTINGS_PATH):
+    os.makedirs(os.path.dirname(SETTINGS_PATH), exist_ok=True)
+    shutil.copyfile(TEMPLATE_PATH, SETTINGS_PATH)
+    # Logging isn't configured yet at import time, so print directly.
+    print(f"As this is the first run, a settings file has been created at {SETTINGS_PATH}")
+    print("Please fill up the bot_token, server_id, mod_role_id, imgur API keys, and add at least a single owner ID,")
+    print("then run the bot again.")
+    sys.exit(0)
 
 
 class Settings(dict):
@@ -18,32 +31,6 @@ class Settings(dict):
 
     def __init__(self):
         dict.__init__(self)
-        if not os.path.isfile(SETTINGS_PATH):
-            self.update(
-                {
-                    "bot_token": None,
-                    "server_id": None,
-                    "command_prefix": None,
-                    "mod_role_id": None,
-                    "imgur": {
-                        "id": None,
-                        "secret": None,
-                    },
-                    "owners": [],
-                    "users": {},
-                    "channels": {
-                        "bot_commands": -1,
-                        "trusted_channels": [],  # List of channel IDs to skip trustworthiness checks
-                    },
-                    "bedtime": {},
-                    "trusty": {},
-                }
-            )
-            self.save()
-            log.info("As this is the first run, a settings file has been created!")
-            log.info("Please fill up the bot_token, imgur API keys, and add at least a single owner ID to the list,")
-            log.info("then run the bot again.")
-            sys.exit(0)
 
         with open(SETTINGS_PATH, "r") as settings_file:
             loaded_settings = json.loads(settings_file.read())

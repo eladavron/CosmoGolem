@@ -40,6 +40,7 @@ class Bot(commands.Bot):
             "emoji_roles",
             "bedtime",
             "trusty",
+            "bot_trap",
         ]
 
         for extension in startup_extensions:

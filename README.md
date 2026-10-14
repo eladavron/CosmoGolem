@@ -51,6 +51,20 @@ There's probably a better way to do this, but for now we do it manually.
 * **owners**: `list<int>` - List of user IDs for users considered `owners` (basically bot admins).
 
 ### Optional Settings
+#### Bot Trap
+List channel IDs under `channels.bot_trap` to turn them into bot traps:
+```json
+"channels": {
+    "bot_trap": [ 1234567890 ]
+}
+```
+Anyone who posts in a bot-trap channel is immediately banned, and their messages from the last 7 days are deleted server-wide.  
+Owners, members with the Administrator permission, members with the `mod_role_id` role, and other bots are exempt.  
+Each ban is reported in the `bot_commands` channel.
+
+> ⚠️ The bot needs the **Ban Members** permission, and its role must be above the roles of the members it bans.
+
+#### Trustworthiness
 You can set the trustworthiness of various sites under the `trustwothiness` key.  
 Each entry should look like this:
 ```jsonc

@@ -11,7 +11,8 @@
     "users": {},
     "channels": {
         "bot_commands": -1,
-        "trusted_channels": []
+        "trusted_channels": [],
+        "bot_trap": []
     },
     "counters": {
         "doggo": 0,
